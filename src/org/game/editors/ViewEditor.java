@@ -1,11 +1,8 @@
 package org.game.editors;
 
-import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.game.refactor.FileRef;
@@ -28,11 +25,6 @@ public class ViewEditor extends TextEditor
 		setDocumentProvider(new ViewXmlProvider());
 	}
 
-	public void dispose()
-	{
-		super.dispose();
-	}
-	
 	public void selectRange(int offset,int length)
 	{
 		Point range=getSourceViewer().getSelectedRange();
@@ -45,6 +37,12 @@ public class ViewEditor extends TextEditor
 
 			markInNavigationHistory();
 		}
+	}
+	
+	@Override
+	protected boolean isEditorInputIncludedInContextMenu()
+	{
+		return false;
 	}
 	
 	@Override
