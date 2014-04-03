@@ -1,4 +1,4 @@
-package org.game.xml.search.file;
+package org.game.views.search;
 
 import java.io.IOException;
 
@@ -12,15 +12,15 @@ import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 import org.game.refactor.Project;
 
-public class FileRefSearchQuery implements ISearchQuery
+public class SearchFileRefQuery implements ISearchQuery
 {
 	private IFile file;
-	private FileRefResult result;
+	private SearchResult result;
 	
-	public FileRefSearchQuery(IFile file)
+	public SearchFileRefQuery(IFile file)
 	{
 		this.file=file;
-		this.result=new FileRefResult(this,file.getProjectRelativePath().toString(),file.getProject().getName());
+		this.result=new SearchResult(this,file.getProjectRelativePath().toString(),file.getProject().getName());
 	}
 	
 	@Override

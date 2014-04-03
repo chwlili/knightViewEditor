@@ -1,4 +1,4 @@
-package org.game.xml.search.file;
+package org.game.views.search;
 
 import java.io.IOException;
 
@@ -12,15 +12,15 @@ import org.eclipse.search.ui.ISearchResult;
 import org.game.refactor.IdDef;
 import org.game.refactor.Project;
 
-public class IdRefSearchQuery implements ISearchQuery
+public class SearchIdRefQuery implements ISearchQuery
 {
 	private IdDef idDef;
-	private FileRefResult result;
+	private SearchResult result;
 	
-	public IdRefSearchQuery(IdDef idDef)
+	public SearchIdRefQuery(IdDef idDef)
 	{
 		this.idDef=idDef;
-		this.result=new FileRefResult(this,idDef.getID(),idDef.getFile().getProject().getName());
+		this.result=new SearchResult(this,idDef.getID(),idDef.getFile().getProject().getName());
 	}
 	
 	@Override

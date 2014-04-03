@@ -1,4 +1,4 @@
-package org.game.wizard;
+package org.game.views.wizard;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;

@@ -1,4 +1,4 @@
-package org.game.xml.search.file;
+package org.game.views.search;
 
 import java.util.ArrayList;
 
@@ -56,9 +56,9 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 					e.printStackTrace();
 				}
 			}
-			else if(item instanceof FileRefMatch)
+			else if(item instanceof SearchMatch)
 			{
-				FileRefMatch match=(FileRefMatch)item;
+				SearchMatch match=(SearchMatch)item;
 				IFile owner=(IFile)match.getElement();
 				try
 				{
@@ -87,12 +87,12 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 		
 		viewer.setContentProvider(new ITreeContentProvider()
 		{
-			private FileRefResult input;
+			private SearchResult input;
 			
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
 			{
-				input=(FileRefResult) newInput;
+				input=(SearchResult) newInput;
 			}
 			
 			@Override
@@ -104,7 +104,7 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 			@Override
 			public boolean hasChildren(Object element)
 			{
-				if(element instanceof FileRefResult)
+				if(element instanceof SearchResult)
 				{
 					return true;
 				}
@@ -124,7 +124,7 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 			@Override
 			public Object[] getElements(Object inputElement)
 			{
-				return ((FileRefResult) inputElement).getElements();
+				return ((SearchResult) inputElement).getElements();
 			}
 			
 			@Override
@@ -170,7 +170,7 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 				}
 				else if(element instanceof Match)
 				{
-					return ((FileRefMatch)element).getText();
+					return ((SearchMatch)element).getText();
 				}
 				return element.toString();
 			}
@@ -178,7 +178,7 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 			@Override
 			public Image getImage(Object element)
 			{
-				if(element instanceof FileRefMatch)
+				if(element instanceof SearchMatch)
 				{
 					return ResourceManager.getIcon("/icons/tag.gif");
 				}
@@ -220,7 +220,7 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 			{
 				ArrayList<Object> all=new ArrayList<Object>();
 				
-				FileRefResult input=(FileRefResult) inputElement;
+				SearchResult input=(SearchResult) inputElement;
 				for(Object element:input.getElements())
 				{
 					for(Object item:input.getMatches(element))
@@ -259,9 +259,9 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 			@Override
 			public String getText(Object element)
 			{
-				if(element instanceof FileRefMatch)
+				if(element instanceof SearchMatch)
 				{
-					return ((FileRefMatch)element).getText();
+					return ((SearchMatch)element).getText();
 				}
 				return element.toString();
 			}

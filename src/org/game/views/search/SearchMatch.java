@@ -1,12 +1,12 @@
-package org.game.xml.search.file;
+package org.game.views.search;
 
 import org.eclipse.search.ui.text.Match;
 
-public class FileRefMatch extends Match
+public class SearchMatch extends Match
 {
 	private String text;
 
-	public FileRefMatch(Object element, String text, int offset, int length)
+	public SearchMatch(Object element, String text, int offset, int length)
 	{
 		super(element, offset, length);
 

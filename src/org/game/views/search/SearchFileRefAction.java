@@ -1,4 +1,4 @@
-package org.game.xml.search.file;
+package org.game.views.search;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.IAction;
@@ -8,11 +8,11 @@ import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
-public class FileRefSearchAction implements IObjectActionDelegate
+public class SearchFileRefAction implements IObjectActionDelegate
 {
 	private ISelection selection;
 	
-	public FileRefSearchAction()
+	public SearchFileRefAction()
 	{
 	}
 
@@ -29,7 +29,7 @@ public class FileRefSearchAction implements IObjectActionDelegate
 				{
 					IFile file=(IFile)element;
 					NewSearchUI.activateSearchResultView();
-					NewSearchUI.runQueryInBackground(new FileRefSearchQuery(file));
+					NewSearchUI.runQueryInBackground(new SearchFileRefQuery(file));
 				}
 			}
 		}

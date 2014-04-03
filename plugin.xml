@@ -11,7 +11,7 @@
       </category>
       <wizard
             category="org.game.views.viewCategory"
-            class="org.game.wizard.NewProjectWizard"
+            class="org.game.views.wizard.NewProjectWizard"
             icon="icons/protoProjectIcon.png"
             id="org.game.views.viewProject"
             name="视图项目"
@@ -72,10 +72,10 @@
    <extension
          point="org.eclipse.search.searchResultViewPages">
       <viewPage
-            class="org.game.xml.search.file.SearchResultView"
+            class="org.game.views.search.SearchResultView"
             icon="icons/appIcon16.png"
             id="org.game.views.viewPage1"
-            searchResultClass="org.game.xml.search.file.FileRefResult">
+            searchResultClass="org.game.views.search.SearchResult">
       </viewPage>
    </extension>
    <extension
@@ -99,7 +99,7 @@
                menubarPath="org.chw.viewer.refactoring">
          </action>
          <action
-               class="org.game.xml.search.file.FileRefSearchAction"
+               class="org.game.views.search.SearchFileRefAction"
                enablesFor="1"
                icon="icons/appIcon16.png"
                id="org.game.views.action1"

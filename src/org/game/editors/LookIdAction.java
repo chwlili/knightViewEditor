@@ -13,12 +13,12 @@ import org.game.refactor.IdDef;
 import org.game.refactor.IdRef;
 import org.game.refactor.Project;
 
-public class LockToIdAction extends Action
+public class LookIdAction extends Action
 {
 
 	private IdDef idDef;
 	
-	public LockToIdAction(IdDef idDef)
+	public LookIdAction(IdDef idDef)
 	{
 		this.idDef=idDef;
 	}
@@ -54,7 +54,7 @@ public class LockToIdAction extends Action
 	
 	private IdRef idRef;
 	private boolean findFile;
-	public LockToIdAction(IdRef idRef,boolean findFile)
+	public LookIdAction(IdRef idRef,boolean findFile)
 	{
 		this.idRef=idRef;
 		this.findFile=findFile;

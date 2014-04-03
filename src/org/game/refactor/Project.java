@@ -19,8 +19,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.game.xml.search.file.FileRefMatch;
-import org.game.xml.search.file.FileRefResult;
+import org.game.views.search.SearchMatch;
+import org.game.views.search.SearchResult;
 
 public class Project
 {
@@ -231,7 +231,7 @@ public class Project
 	 * @throws CoreException
 	 * @throws IOException
 	 */
-	public static void searchIdRef(IdDef target, FileRefResult result, IProgressMonitor pm) throws CoreException, IOException
+	public static void searchIdRef(IdDef target, SearchResult result, IProgressMonitor pm) throws CoreException, IOException
 	{
 		IProject project = target.getFile().getProject();
 
@@ -283,7 +283,7 @@ public class Project
 				{
 					if(curr.getFile().equals(target.getFile()) && curr.getStart()==target.getStart() && curr.getStop()==target.getStop())
 					{
-						result.addMatch(new FileRefMatch(ref.getOwner(), ref.getText(), ref.getStart(), ref.getStop() - ref.getStart() + 1));
+						result.addMatch(new SearchMatch(ref.getOwner(), ref.getText(), ref.getStart(), ref.getStop() - ref.getStart() + 1));
 						pm.worked(1);
 					}
 				}
@@ -301,7 +301,7 @@ public class Project
 	 * @throws CoreException
 	 * @throws IOException
 	 */
-	public static void searchFileRef(IFile file, FileRefResult result, IProgressMonitor pm) throws CoreException, IOException
+	public static void searchFileRef(IFile file, SearchResult result, IProgressMonitor pm) throws CoreException, IOException
 	{
 		IProject project = file.getProject();
 		String refURL = getViewURL(file);
@@ -351,7 +351,7 @@ public class Project
 			{
 				if (ref.filePath.equals(refURL))
 				{
-					result.addMatch(new FileRefMatch(ref.owner, ref.text, ref.start, ref.stop - ref.start + 1));
+					result.addMatch(new SearchMatch(ref.owner, ref.text, ref.start, ref.stop - ref.start + 1));
 					pm.worked(1);
 				}
 			}

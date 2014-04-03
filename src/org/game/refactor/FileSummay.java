@@ -679,6 +679,8 @@ public class FileSummay
 
 			typeTable.put("state.back", IdRef.BMP);
 			typeTable.put("state.format", IdRef.FORMAT);
+
+			typeTable.put("box.tip", IdRef.TXT);
 		}
 
 		String key = tagName + "." + attributeName;

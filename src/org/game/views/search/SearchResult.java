@@ -1,4 +1,4 @@
-package org.game.xml.search.file;
+package org.game.views.search;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.search.ui.ISearchQuery;
@@ -7,13 +7,13 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.IEditorMatchAdapter;
 import org.eclipse.search.ui.text.IFileMatchAdapter;
 
-public class FileRefResult extends AbstractTextSearchResult implements ISearchResult
+public class SearchResult extends AbstractTextSearchResult implements ISearchResult
 {
 	private ISearchQuery query;
 	private String searchTarget;
 	private String projectName;
 	
-	public FileRefResult(ISearchQuery query,String searchTarget,String projectName)
+	public SearchResult(ISearchQuery query,String searchTarget,String projectName)
 	{
 		this.query=query;
 		this.searchTarget=searchTarget;
@@ -23,7 +23,7 @@ public class FileRefResult extends AbstractTextSearchResult implements ISearchRe
 	@Override
 	public String getLabel()
 	{
-		return String.format("\"%s\" - 项目 \"%s\"",searchTarget,projectName);
+		return String.format("\"%s\" - 项目 \"%s\" 共有%s个区配项",searchTarget,projectName,getMatchCount());
 	}
 
 	@Override

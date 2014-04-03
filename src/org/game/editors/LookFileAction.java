@@ -10,11 +10,11 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.game.refactor.FileRef;
 import org.game.refactor.Project;
 
-public class LockToFileAction extends org.eclipse.jface.action.Action
+public class LookFileAction extends org.eclipse.jface.action.Action
 {
 	private FileRef ref;
 	
-	public LockToFileAction(FileRef ref)
+	public LookFileAction(FileRef ref)
 	{
 		this.ref=ref;
 	}

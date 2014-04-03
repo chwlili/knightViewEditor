@@ -1,11 +1,13 @@
 package org.game.editors;
 
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.game.refactor.FileRef;
 import org.game.refactor.IdDef;
 import org.game.refactor.IdRef;
+import org.game.views.search.SearchIdRefAction;
 
 public class ViewEditor extends TextEditor
 {
@@ -27,8 +29,14 @@ public class ViewEditor extends TextEditor
 	
 	public void selectRange(int offset,int length)
 	{
-		getSourceViewer().setSelectedRange(offset, length);
-		getSourceViewer().revealRange(offset, length);
+		Point range=getSourceViewer().getSelectedRange();
+		if(range.x!=offset || range.y!=length)
+		{
+			markInNavigationHistory();
+			
+			getSourceViewer().setSelectedRange(offset, length);
+			getSourceViewer().revealRange(offset, length);
+		}
 	}
 	
 	@Override
@@ -37,15 +45,21 @@ public class ViewEditor extends TextEditor
 		int offset=getSourceViewer().getSelectedRange().x;
 		
 		DomManager manager=DomManager.getDomManager(getSourceViewer().getDocument());
-		
-		//查找ID引用
+
+		//ID引用
 		IdRef idRef=manager.getIdRef(offset);
+		//文件引用
+		FileRef fileRef=manager.getFileRef(offset);
+		//ID定义
+		IdDef idDef=manager.getIdDef(offset);
+		
+		//打开目标声明动作
 		if(idRef!=null)
 		{
-			menu.add(new LockToIdAction(idRef.getTarget()));
+			menu.add(new LookIdAction(idRef.getTarget()));
 		}
 		
-		//查找图像类型ID引用的图像文件
+		//打开目标文件动作
 		if(idRef!=null && idRef.isBitmapRef())
 		{
 			FileRef file=null;
@@ -63,14 +77,13 @@ public class ViewEditor extends TextEditor
 				file=(FileRef)target.getRef();
 			}
 			
-			menu.add(new LockToFileAction(file));
+			menu.add(new LookFileAction(file));
 		}
 
-		//查找文件引用
-		FileRef fileRef=manager.getFileRef(offset);
+		//打开目标文件动作
 		if(fileRef!=null)
 		{
-			menu.add(new LockToFileAction(fileRef));
+			menu.add(new LookFileAction(fileRef));
 		}
 		
 		super.editorContextMenuAboutToShow(menu);
@@ -83,16 +96,23 @@ public class ViewEditor extends TextEditor
 		menu.remove(ITextEditorActionConstants.SHIFT_RIGHT);
 		
 		//重命名ID
-		IdDef idDef=manager.getIdDef(offset);
 		if(idDef!=null)
 		{
 			menu.appendToGroup(ITextEditorActionConstants.GROUP_COPY, new RenameIdAction(idDef));
+		}
+		else
+		{
+			IdDef def=idRef.getTarget();
+			if(def!=null)
+			{
+				menu.appendToGroup(ITextEditorActionConstants.GROUP_COPY, new RenameIdAction(def));
+			}
 		}
 		
 		//查找ID引用
 		if(idDef!=null)
 		{
-			menu.appendToGroup(ITextEditorActionConstants.GROUP_COPY, new SearchIdAction(idDef));
+			menu.appendToGroup(ITextEditorActionConstants.GROUP_COPY, new SearchIdRefAction(idDef));
 		}
 	}
 }

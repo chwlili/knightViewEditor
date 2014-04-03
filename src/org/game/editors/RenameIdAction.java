@@ -32,8 +32,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.text.edits.ReplaceEdit;
-import org.game.refactor.FileRef;
-import org.game.refactor.FileSummay;
 import org.game.refactor.IdDef;
 import org.game.refactor.IdRef;
 import org.game.refactor.Project;
@@ -61,14 +59,18 @@ public class RenameIdAction extends Action
 
 		try
 		{
-			op.run(Display.getCurrent().getActiveShell(), "XXXXXXXXXXXXXXXXX");
+			op.run(Display.getCurrent().getActiveShell(), "重命名ID");
 		}
 		catch (InterruptedException e)
 		{
-			// do nothing
 		}
 	}
-
+	
+	/**
+	 * 重命名ID向导
+	 * @author tt
+	 *
+	 */
 	private class RenameIDWizard extends RefactoringWizard
 	{
 		private IdDef idDef;
@@ -85,13 +87,82 @@ public class RenameIdAction extends Action
 		@Override
 		protected void addUserInputPages()
 		{
-			addPage(new RenameIDWizardPage(fProcessor,"jjjj"));
+			addPage(new RenameIDWizardPage(fProcessor,"重命名ID",idDef.getID()));
 		}
 	}
-	
+
+	/**
+	 * 重命名ID页面
+	 * @author tt
+	 *
+	 */
+	private class RenameIDWizardPage extends UserInputWizardPage
+	{
+		private final RenameIdProcessor fRefactoringProcessor;
+		private Text fNameField;
+		private String id;
+		
+		protected RenameIDWizardPage(RenameIdProcessor processor,String name,String id)
+		{
+			super(name);
+			
+			this.id=id;
+			fRefactoringProcessor=processor;
+		}
+
+		@Override
+		public void createControl(Composite parent)
+		{
+			Composite composite = new Composite(parent, SWT.NONE);
+			composite.setLayout(new GridLayout(2, false));
+			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			composite.setFont(parent.getFont());
+
+			Label label = new Label(composite, SWT.NONE);
+			label.setText("新建名称：");
+			label.setLayoutData(new GridData());
+
+			fNameField = new Text(composite, SWT.BORDER);
+			fNameField.setText(id!=null ? id:"");
+			fNameField.setFont(composite.getFont());
+			fNameField.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+			fNameField.addModifyListener(new ModifyListener()
+			{
+				public void modifyText(ModifyEvent e)
+				{
+					validatePage();
+				}
+			});
+
+			fNameField.selectAll();
+			setPageComplete(false);
+			setControl(composite);
+		}
+		
+		private void validatePage()
+		{
+			String text=fNameField.getText();
+			if(text!=null && !text.isEmpty())
+			{
+				fRefactoringProcessor.setName(text);
+				setPageComplete(true);
+			}
+			else
+			{
+				setPageComplete(false);
+			}
+		}
+	}
+
+	/**
+	 * 重构工具
+	 * @author tt
+	 *
+	 */
 	private class RenameIdRefactoring extends ProcessorBasedRefactoring
 	{
 		private RenameIdProcessor fProcessor;
+		
 		public RenameIdRefactoring(RenameIdProcessor processor)
 		{
 			super(processor);
@@ -102,11 +173,17 @@ public class RenameIdAction extends Action
 		/**
 		 * {@inheritDoc}
 		 */
-		public RefactoringProcessor getProcessor() {
+		public RefactoringProcessor getProcessor() 
+		{
 			return fProcessor;
 		}
 	}
 	
+	/**
+	 * 重构处理器
+	 * @author tt
+	 *
+	 */
 	private class RenameIdProcessor extends RenameProcessor
 	{
 		private IdDef idDef;
@@ -154,7 +231,6 @@ public class RenameIdAction extends Action
 		public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException
 		{
 			return RefactoringStatus.create(Status.OK_STATUS);
-			//return RefactoringStatus.create(Resources.checkInSync(idDef.getFile()));
 		}
 
 		@Override
@@ -167,8 +243,6 @@ public class RenameIdAction extends Action
 		public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException
 		{
 			CompositeChange root=new CompositeChange("重构文件引用");
-			
-			FileSummay dom=Project.getFileSummay(idDef.getFile());
 			try
 			{
 				List<IdRef> refs=Project.getIdRefs(idDef);
@@ -193,62 +267,6 @@ public class RenameIdAction extends Action
 		public RefactoringParticipant[] loadParticipants(RefactoringStatus status, SharableParticipants sharedParticipants) throws CoreException
 		{
 			return null;
-		}
-	}
-
-	private class RenameIDWizardPage extends UserInputWizardPage
-	{
-		private final RenameIdProcessor fRefactoringProcessor;
-		private Text fNameField;
-
-		protected RenameIDWizardPage(RenameIdProcessor processor,String name)
-		{
-			super(name);
-			
-			fRefactoringProcessor=processor;
-		}
-
-		@Override
-		public void createControl(Composite parent)
-		{
-			Composite composite = new Composite(parent, SWT.NONE);
-			composite.setLayout(new GridLayout(2, false));
-			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			composite.setFont(parent.getFont());
-
-			Label label = new Label(composite, SWT.NONE);
-			label.setText("新建名称：");
-			label.setLayoutData(new GridData());
-
-			fNameField = new Text(composite, SWT.BORDER);
-			fNameField.setText("");
-			fNameField.setFont(composite.getFont());
-			fNameField.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
-			fNameField.addModifyListener(new ModifyListener()
-			{
-				public void modifyText(ModifyEvent e)
-				{
-					validatePage();
-				}
-			});
-
-			fNameField.selectAll();
-			setPageComplete(false);
-			setControl(composite);
-		}
-		
-		private void validatePage()
-		{
-			String text=fNameField.getText();
-			if(text!=null && !text.isEmpty())
-			{
-				fRefactoringProcessor.setName(text);
-				setPageComplete(true);
-			}
-			else
-			{
-				setPageComplete(false);
-			}
 		}
 	}
 }
