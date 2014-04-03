@@ -1,6 +1,7 @@
 package org.game.editors;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
@@ -10,7 +11,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.game.refactor.FileRef;
 import org.game.refactor.Project;
 
-public class LookFileAction extends org.eclipse.jface.action.Action
+public class LookFileAction extends Action
 {
 	private FileRef ref;
 	

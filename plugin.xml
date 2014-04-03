@@ -74,7 +74,7 @@
       <viewPage
             class="org.game.views.search.SearchResultView"
             icon="icons/appIcon16.png"
-            id="org.game.views.viewPage1"
+            id="org.game.views.search.view"
             searchResultClass="org.game.views.search.SearchResult">
       </viewPage>
    </extension>
@@ -210,20 +210,6 @@
             <enablement></enablement>
          </commonWizard>
       </navigatorContent>
-   </extension>
-   <extension
-         point="org.eclipse.ui.editorActions">
-      <editorContribution
-            id="org.game.views.editorContribution1"
-            targetID="org.game.editors.XML">
-         <action
-               class="org.game.views.EditorActionDelegate1"
-               icon="icons/appIcon16.png"
-               id="org.game.views.action1"
-               label="PPPPPPPPPPPPPPPPPPPPP"
-               style="push">
-         </action>
-      </editorContribution>
    </extension>
    
 

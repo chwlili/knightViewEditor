@@ -13,6 +13,10 @@ public class SearchIdRefAction extends Action {
 		this.idDef=idDef;
 	}
 	
+	public String getText() {
+		return "≤È’““˝”√";
+	};
+	
 	@Override
 	public void run() {
 		NewSearchUI.activateSearchResultView();
