@@ -156,6 +156,10 @@
                   separator="true">
             </insertionPoint>
             <insertionPoint
+                  name="group.openWith"
+                  separator="false">
+            </insertionPoint>
+            <insertionPoint
                   name="group.edit"
                   separator="true">
             </insertionPoint>
@@ -182,6 +186,9 @@
          <includes>
             <contentExtension
                   pattern="org.eclipse.ui.navigator.resourceContent">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resources.*">
             </contentExtension>
          </includes>
       </viewerContentBinding>
@@ -210,6 +217,10 @@
             <enablement></enablement>
          </commonWizard>
       </navigatorContent>
+      <commonFilter
+            id="knightViewEditor.commonFilter1"
+            name="name">
+      </commonFilter>
    </extension>
    
 
