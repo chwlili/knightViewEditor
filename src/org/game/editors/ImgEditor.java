@@ -81,6 +81,7 @@ public class ImgEditor extends EditorPart
 	@Override
 	public void setFocus()
 	{
+		img_1.setFocus();
 	}
 
 }

@@ -68,6 +68,14 @@
             id="org.game.editors.IMG"
             name="图像查看器">
       </editor>
+      <editor
+            class="org.game.editors.ProjectEditor"
+            default="true"
+            extensions=".mo"
+            icon="icons/appIcon16.png"
+            id="org.game.editors.PRO"
+            name="汇总编辑器">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.search.searchResultViewPages">
@@ -105,6 +113,13 @@
                id="org.game.views.action1"
                label="查找引用"
                menubarPath="group.find">
+         </action>
+         <action
+               class="org.game.views.priority.PrioritySettingAction"
+               enablesFor="1"
+               icon="icons/appIcon16.png"
+               id="knightViewEditor.action1"
+               label="优先级设定">
          </action>
       </objectContribution>
    </extension>
