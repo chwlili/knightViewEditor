@@ -32,7 +32,7 @@ public class MoveFileParticipant extends MoveParticipant
 	@Override
 	public String getName()
 	{
-		return null;
+		return "重构文件引用";
 	}
 
 	@Override

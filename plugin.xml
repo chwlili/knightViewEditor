@@ -88,12 +88,14 @@
          <action
                class="org.game.refactor.RenameFileAction"
                enablesFor="1"
+               icon="icons/appIcon16.png"
                id="org.game.views.action1"
                label="重命名..."
                menubarPath="org.chw.viewer.refactoring">
          </action>
          <action
                class="org.game.refactor.MoveFileAction"
+               icon="icons/appIcon16.png"
                id="org.game.views.action1"
                label="移动..."
                menubarPath="org.chw.viewer.refactoring">
@@ -148,27 +150,40 @@
          <popupMenu
                allowsPlatformContributions="true">
             <insertionPoint
-                  name="group.new"
-                  separator="true">
+                  name="group.new">
             </insertionPoint>
             <insertionPoint
                   name="group.open"
                   separator="true">
             </insertionPoint>
             <insertionPoint
+                  name="group.openWith">
+            </insertionPoint>
+            <insertionPoint
                   name="group.edit"
                   separator="true">
             </insertionPoint>
             <insertionPoint
-                  name="org.chw.viewer.refactoring"
-                  separator="false">
+                  name="org.chw.viewer.refactoring">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.find"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.port"
+                  separator="true">
             </insertionPoint>
             <insertionPoint
                   name="group.build"
                   separator="true">
             </insertionPoint>
             <insertionPoint
-                  name="addtions"
+                  name="group.generate"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="additions"
                   separator="true">
             </insertionPoint>
             <insertionPoint
@@ -182,6 +197,12 @@
          <includes>
             <contentExtension
                   pattern="org.eclipse.ui.navigator.resourceContent">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resources.*">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.game.views.navigatorContent1">
             </contentExtension>
          </includes>
       </viewerContentBinding>
@@ -202,8 +223,9 @@
          <enablement></enablement>
       </commonWizard>
       <navigatorContent
+            icon="icons/appIcon16.png"
             id="org.game.views.navigatorContent1"
-            name="name">
+            name="knight">
          <commonWizard
                type="new"
                wizardId="org.game.views.viewProject">
