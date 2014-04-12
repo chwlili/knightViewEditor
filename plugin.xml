@@ -154,7 +154,7 @@
             class="org.eclipse.ui.navigator.CommonNavigator"
             icon="icons/appIcon16.png"
             id="org.game.views.view1"
-            name="MyProjectNavigator"
+            name="UI资源管理器"
             restorable="true">
       </view>
    </extension>
@@ -251,6 +251,15 @@
             id="knightViewEditor.commonFilter1"
             name="name">
       </commonFilter>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.game.knight.perspective.UiPerspective"
+            icon="icons/appIcon16.png"
+            id="org.game.knight.viewEditor.perspective1"
+            name="UI开发">
+      </perspective>
    </extension>
    
 

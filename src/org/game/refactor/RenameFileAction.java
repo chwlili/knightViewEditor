@@ -5,11 +5,9 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
-import org.eclipse.ltk.ui.refactoring.resource.RenameResourceWizard;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.editors.text.TextEditor;
 
 public class RenameFileAction implements IObjectActionDelegate
 {
@@ -28,7 +26,7 @@ public class RenameFileAction implements IObjectActionDelegate
 				if (element instanceof IFile)
 				{
 					IFile file = (IFile) element;
-					RenameResourceWizard renameResourceWizard = new RenameResourceWizard(file);
+					RenameFileWizard renameResourceWizard = new RenameFileWizard(file);
 					RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(renameResourceWizard);
 					
 					try

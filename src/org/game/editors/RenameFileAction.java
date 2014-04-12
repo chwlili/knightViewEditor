@@ -4,10 +4,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
-import org.eclipse.ltk.ui.refactoring.resource.RenameResourceWizard;
 import org.eclipse.swt.widgets.Display;
 import org.game.refactor.FileRef;
 import org.game.refactor.Project;
+import org.game.refactor.RenameFileWizard;
 
 public class RenameFileAction extends Action {
 
@@ -38,7 +38,7 @@ public class RenameFileAction extends Action {
 		IFile file=Project.getSourceFile(owner.getProject(), ref.filePath);
 		if(file.exists())
 		{
-			RenameResourceWizard refactoringWizard= new RenameResourceWizard(file);
+			RenameFileWizard refactoringWizard= new RenameFileWizard(file);
 			RefactoringWizardOpenOperation op= new RefactoringWizardOpenOperation(refactoringWizard);
 			
 			try 
