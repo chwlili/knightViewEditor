@@ -21,6 +21,8 @@ public class UiPerspective implements IPerspectiveFactory
 		bottomFolder.addView(IPageLayout.ID_PROP_SHEET);
 		bottomFolder.addPlaceholder("org.eclipse.search.ui.views.SearchView");
 		bottomFolder.addView(IPageLayout.ID_PROGRESS_VIEW);
+		
+		layout.addNewWizardShortcut("org.game.views.viewProject");
 	}
 
 }

@@ -231,28 +231,6 @@
       </viewerActionBinding>
    </extension>
    <extension
-         point="org.eclipse.ui.navigator.navigatorContent">
-      <commonWizard
-            type="new"
-            wizardId="org.game.views.viewProject">
-         <enablement></enablement>
-      </commonWizard>
-      <navigatorContent
-            icon="icons/appIcon16.png"
-            id="org.game.views.navigatorContent1"
-            name="knight">
-         <commonWizard
-               type="new"
-               wizardId="org.game.views.viewProject">
-            <enablement></enablement>
-         </commonWizard>
-      </navigatorContent>
-      <commonFilter
-            id="knightViewEditor.commonFilter1"
-            name="name">
-      </commonFilter>
-   </extension>
-   <extension
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.game.knight.perspective.UiPerspective"
