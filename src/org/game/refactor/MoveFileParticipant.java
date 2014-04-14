@@ -43,7 +43,7 @@ public class MoveFileParticipant extends MoveParticipant
 	@Override
 	public String getName()
 	{
-		return "重构文件引用";
+		return "更新文件\""+file.getProjectRelativePath().toString()+"\"";
 	}
 
 	@Override
@@ -54,6 +54,12 @@ public class MoveFileParticipant extends MoveParticipant
 
 	@Override
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException
+	{
+		return null;
+	}
+	
+	@Override
+	public Change createPreChange(IProgressMonitor pm) throws CoreException, OperationCanceledException
 	{
 		Hashtable<IFile, ArrayList<ReplaceEdit>> file_edits = new Hashtable<IFile, ArrayList<ReplaceEdit>>();
 
@@ -88,12 +94,17 @@ public class MoveFileParticipant extends MoveParticipant
 		}
 		
 		//合并文件变动
-		CompositeChange root = new CompositeChange("更新文件引用");
+		CompositeChange root = null;
 		for (IFile file : file_edits.keySet())
 		{
 			TextChange fileEdit=getTextChange(file);
 			if(fileEdit==null)
 			{
+				if(root==null)
+				{
+					root=new CompositeChange("更新对\""+this.file.getLocation().toString()+"\"的引用");
+				}
+				
 				fileEdit= new TextFileChange("", file);
 				fileEdit.setEdit(new MultiTextEdit());
 				root.add(fileEdit);
@@ -104,7 +115,6 @@ public class MoveFileParticipant extends MoveParticipant
 				fileEdit.addEdit(edit);
 			}
 		}
-
 		return root;
 	}
 }

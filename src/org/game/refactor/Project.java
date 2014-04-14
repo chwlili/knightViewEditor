@@ -159,7 +159,7 @@ public class Project
 
 	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, IResource[] others, IProgressMonitor pm) throws CoreException, IOException
 	{
-		ArrayList<IFile> fromFiles=new ArrayList<IFile>();
+		ArrayList<IFile> fromFiles = new ArrayList<IFile>();
 		Hashtable<IFile, IFile> froms_dests = new Hashtable<IFile, IFile>();
 		ArrayList<Change> changes = new ArrayList<Project.Change>();
 
@@ -167,7 +167,7 @@ public class Project
 		ArrayList<IResource> resources = new ArrayList<IResource>();
 		for (IResource other : others)
 		{
-			boolean isCurr=other.equals(from);
+			boolean isCurr = other.equals(from);
 			resources.add(other);
 			while (resources.size() > 0)
 			{
@@ -186,7 +186,7 @@ public class Project
 					IFile destFile = dest.getFile(fromFile.getLocation().makeRelativeTo(other.getParent().getLocation()));
 
 					froms_dests.put(fromFile, destFile);
-					if(isCurr)
+					if (isCurr)
 					{
 						fromFiles.add(fromFile);
 					}
@@ -243,7 +243,7 @@ public class Project
 		}
 
 		// 处理引用
-		System.out.println(">> 处理移动:"+from.getLocation().toString());
+		System.out.println(">> 处理移动:" + from.getLocation().toString());
 		pm.setTaskName("查找文件引用");
 		for (IFile fromFile : fromFiles)
 		{
@@ -252,7 +252,7 @@ public class Project
 			IFile destFile = froms_dests.get(fromFile);
 			String destPath = getViewURL(destFile);
 
-			System.out.println("   处理别人对"+from.getLocation().toString()+"的引用");
+			System.out.println("   处理别人对" + from.getLocation().toString() + "的引用");
 			for (FileSummay view : parsedViews.values())
 			{
 				for (FileRef ref : view.getFileRefs())
@@ -260,33 +260,37 @@ public class Project
 					if (ref.filePath.equals(fromPath))
 					{
 						Change change = new Change();
-						change.owner = froms_dests.containsKey(view.getFile()) ? froms_dests.get(view.getFile()) : view.getFile();
+						change.owner = view.getFile();
+						// change.owner =
+						// froms_dests.containsKey(view.getFile()) ?
+						// froms_dests.get(view.getFile()) : view.getFile();
 						change.offset = ref.start;
 						change.length = ref.stop - ref.start + 1;
 						change.text = destPath;
 						changes.add(change);
-						
-						System.out.println("   add range:"+change.offset+","+change.length+","+change.text);
+
+						System.out.println("   add range:" + change.offset + "," + change.length + "," + change.text);
 					}
 				}
 			}
 
-			System.out.println("   处理"+from.getLocation().toString()+"对别人的引用");
-			if(fromFile.getName().toLowerCase().endsWith(".xml"))
+			System.out.println("   处理" + from.getLocation().toString() + "对别人的引用");
+			if (fromFile.getName().toLowerCase().endsWith(".xml"))
 			{
 				FileSummay content = parsedViews.get(getViewURL(fromFile));
 				for (FileRef ref : content.getFileRefs())
 				{
 					IFile file = projectSourceFolder.getFile(new Path(ref.filePath));
-					if(!froms_dests.containsKey(file))
+					if (!froms_dests.containsKey(file))
 					{
 						Change change = new Change();
-						change.owner = destFile;
+						change.owner = content.getFile();
+						//change.owner = destFile;
 						change.offset = ref.start;
 						change.length = ref.stop - ref.start + 1;
 						change.text = froms_dests.containsKey(file) ? getViewURL(froms_dests.get(file)) : getViewURL(file);
 						changes.add(change);
-						System.out.println("   add range:"+change.offset+","+change.length+","+change.text);
+						System.out.println("   add range:" + change.offset + "," + change.length + "," + change.text);
 					}
 				}
 			}

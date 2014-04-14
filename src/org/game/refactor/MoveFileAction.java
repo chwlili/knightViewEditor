@@ -1,9 +1,13 @@
 package org.game.refactor;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -73,12 +77,19 @@ public class MoveFileAction extends Action implements IObjectActionDelegate
 			if (selection instanceof StructuredSelection)
 			{
 				StructuredSelection tree = (StructuredSelection) selection;
-				Object element = tree.getFirstElement();
-				if (element instanceof IResource)
+				
+				ArrayList<IResource> resources=new ArrayList<IResource>();
+				for(Object item:tree.toArray())
 				{
-					IResource file = (IResource) element;
-
-					MoveResourcesWizard refactoringWizard = new MoveResourcesWizard(new IResource[] { file });
+					if(item instanceof IResource)
+					{
+						resources.add((IResource)item);
+					}
+				}
+				
+				if(resources.size()>0)
+				{
+					MoveResourcesWizard refactoringWizard = new MoveResourcesWizard(resources.toArray(new IResource[resources.size()]));
 					RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(refactoringWizard);
 
 					try
@@ -87,7 +98,12 @@ public class MoveFileAction extends Action implements IObjectActionDelegate
 					}
 					catch (InterruptedException e)
 					{
+						ErrorDialog.openError(Display.getCurrent().getActiveShell(), "错误", "移动操作出现错误", new Status(Status.ERROR,e.getMessage(),e.getMessage(),e));
 					}
+				}
+				else
+				{
+					MessageDialog.openError(Display.getCurrent().getActiveShell(), "错误", "没有选中任何资源!");
 				}
 			}
 		}

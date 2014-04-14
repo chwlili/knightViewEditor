@@ -54,8 +54,15 @@ public class RenameFileParticipant extends RenameParticipant
 		return new RefactoringStatus();
 	}
 
+
 	@Override
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException
+	{
+		return null;
+	}
+	
+	@Override
+	public Change createPreChange(IProgressMonitor pm) throws CoreException, OperationCanceledException
 	{
 		if(file instanceof IFolder)
 		{
