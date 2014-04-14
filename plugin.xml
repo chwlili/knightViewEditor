@@ -116,12 +116,24 @@
                label="查找引用"
                menubarPath="group.find">
          </action>
+      </objectContribution>
+      <objectContribution
+            adaptable="true"
+            id="knightViewEditor.objectContribution2"
+            objectClass="org.eclipse.core.resources.IFolder">
          <action
-               class="org.game.views.priority.PrioritySettingAction"
-               enablesFor="1"
+               class="org.game.refactor.RenameFileAction"
                icon="icons/appIcon16.png"
-               id="knightViewEditor.action1"
-               label="优先级设定">
+               id="knightViewEditor.action4"
+               label="重命名..."
+               menubarPath="org.chw.viewer.refactoring">
+         </action>
+         <action
+               class="org.game.refactor.MoveFileAction"
+               icon="icons/appIcon16.png"
+               id="knightViewEditor.action3"
+               label="移动..."
+               menubarPath="org.chw.viewer.refactoring">
          </action>
       </objectContribution>
    </extension>

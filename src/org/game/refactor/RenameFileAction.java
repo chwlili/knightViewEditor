@@ -1,6 +1,6 @@
 package org.game.refactor;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -12,7 +12,6 @@ import org.eclipse.ui.IWorkbenchPart;
 public class RenameFileAction implements IObjectActionDelegate
 {
 	private ISelection selection;
-	private IWorkbenchPart part;
 
 	@Override
 	public void run(IAction action)
@@ -23,9 +22,9 @@ public class RenameFileAction implements IObjectActionDelegate
 			{
 				StructuredSelection tree = (StructuredSelection) selection;
 				Object element = tree.getFirstElement();
-				if (element instanceof IFile)
+				if (element instanceof IResource)
 				{
-					IFile file = (IFile) element;
+					IResource file = (IResource) element;
 					RenameFileWizard renameResourceWizard = new RenameFileWizard(file);
 					RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(renameResourceWizard);
 					
@@ -51,7 +50,7 @@ public class RenameFileAction implements IObjectActionDelegate
 	@Override
 	public void setActivePart(IAction action, IWorkbenchPart targetPart)
 	{
-		part=targetPart;
+		
 	}
 
 }

@@ -74,9 +74,9 @@ public class MoveFileAction extends Action implements IObjectActionDelegate
 			{
 				StructuredSelection tree = (StructuredSelection) selection;
 				Object element = tree.getFirstElement();
-				if (element instanceof IFile)
+				if (element instanceof IResource)
 				{
-					IFile file = (IFile) element;
+					IResource file = (IResource) element;
 
 					MoveResourcesWizard refactoringWizard = new MoveResourcesWizard(new IResource[] { file });
 					RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(refactoringWizard);
