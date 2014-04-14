@@ -2,13 +2,11 @@ package org.game.refactor;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Hashtable;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -25,7 +23,8 @@ import org.eclipse.text.edits.ReplaceEdit;
 
 public class MoveFileParticipant extends MoveParticipant
 {
-	private IFile file;
+	private IResource file;
+
 	public MoveFileParticipant()
 	{
 	}
@@ -33,8 +32,12 @@ public class MoveFileParticipant extends MoveParticipant
 	@Override
 	protected boolean initialize(Object element)
 	{
-		this.file=(IFile)element;
-		return true;
+		if (element instanceof IResource)
+		{
+			this.file = (IResource) element;
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -52,133 +55,56 @@ public class MoveFileParticipant extends MoveParticipant
 	@Override
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException
 	{
-		// TODO 自动生成的方法存根
-		return super.createPreChange(pm);
-	}
-	@Override
-	public Change createPreChange(IProgressMonitor pm) throws CoreException, OperationCanceledException
-	{
-		CompositeChange root=new CompositeChange("重构文件引用");
+		Hashtable<IFile, ArrayList<ReplaceEdit>> file_edits = new Hashtable<IFile, ArrayList<ReplaceEdit>>();
+
+		//移动操作的目标文件夹
+		IFolder folder = (IFolder) getArguments().getDestination();
 		
-		IFolder folder=(IFolder)getArguments().getDestination();
-		
-		IFile file=this.file;
-		IFile last=folder.getFile(file.getName());
+		//移动操作涉及的所有文件
+		IResource[] fromFiles = new IResource[getProcessor().getElements().length];
+		Object[] items = getProcessor().getElements();
+		for (int i = 0; i < items.length; i++)
+		{
+			fromFiles[i] = (IResource) items[i];
+		}
+
+		//确定文件变动
 		try
 		{
-			String path=Project.getViewURL(last);
-			List<FileRef> refs=Project.getFileRefs(file);
-			
-			for(FileRef ref:refs)
+			Project.Change[] changes=Project.findRefactoringFileRef((IResource) file, folder, fromFiles, pm);
+			for(Project.Change change:changes)
 			{
-				TextChange old=getTextChange(ref.owner);
-				if(old!=null)
+				if (!file_edits.containsKey(change.owner))
 				{
-					old.addEdit(new ReplaceEdit(ref.start,ref.stop-ref.start+1,path));
+					file_edits.put(change.owner, new ArrayList<ReplaceEdit>());
 				}
-				else
-				{
-					TextFileChange change=new TextFileChange("",ref.owner);
-					change.setEdit(new MultiTextEdit());
-					change.addEdit(new ReplaceEdit(ref.start,ref.stop-ref.start+1,path));
-					root.add(change);
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return root;
-	}
 
-	public Change createChange111111(IProgressMonitor pm) throws CoreException, OperationCanceledException
-	{
-		CompositeChange root=new CompositeChange("重构文件引用");
-		
-		IFolder folder=(IFolder)getArguments().getDestination();
-		
-		Hashtable<String, ArrayList<Range>> allChange=new Hashtable<String, ArrayList<Range>>();
-		
-		for(Object element : getProcessor().getElements())
-		{
-			IFile file=(IFile)element;
-			IFile last=folder.getFile(file.getName());
-			
-			try
-			{
-				String path=Project.getViewURL(last);
-				List<FileRef> refs=Project.getFileRefs(file);
-				
-				for(FileRef ref:refs)
-				{
-					Range range=new Range(ref.owner,ref.start,ref.stop-ref.start+1,path);
-					
-					String key=ref.owner.getLocation().toString();
-					ArrayList<Range> list=allChange.containsKey(key) ? allChange.get(key):null;
-					if(list==null)
-					{
-						list=new ArrayList<Range>();
-						allChange.put(key, list);
-					}
-					list.add(range);
-				}
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
+				file_edits.get(change.owner).add(new ReplaceEdit(change.offset, change.length, change.text));
 			}
 		}
-		
-		for(ArrayList<Range> list:allChange.values())
+		catch (IOException e1)
 		{
-			Collections.sort(list, new Comparator<Range>()
-			{
-				@Override
-				public int compare(Range o1, Range o2)
-				{
-					if(o1.offset<o2.offset)
-					{
-						return -1;
-					}
-					else if(o1.offset>o2.offset)
-					{
-						return 1;
-					}
-					return 0;
-				}
-			});
-			
-			int offset=0;
-			for(Range range:list)
-			{
-				range.offset+=offset;
-				
-				TextFileChange change=new TextFileChange("haha",range.file);
-				change.setEdit(new ReplaceEdit(range.offset,range.length,range.text));
-				root.add(change);
-				
-				offset+=range.text.length()-range.length;
-			}
+			e1.printStackTrace();
 		}
 		
+		//合并文件变动
+		CompositeChange root = new CompositeChange("更新文件引用");
+		for (IFile file : file_edits.keySet())
+		{
+			TextChange fileEdit=getTextChange(file);
+			if(fileEdit==null)
+			{
+				fileEdit= new TextFileChange("", file);
+				fileEdit.setEdit(new MultiTextEdit());
+				root.add(fileEdit);
+			}
+			
+			for (ReplaceEdit edit : file_edits.get(file))
+			{
+				fileEdit.addEdit(edit);
+			}
+		}
+
 		return root;
-	}
-	
-	private class Range
-	{
-		public IFile file;
-		public int offset;
-		public int length;
-		public String text;
-		
-		public Range(IFile file,int offset,int length,String text)
-		{
-			this.file=file;
-			this.offset=offset;
-			this.length=length;
-			this.text=text;
-		}
 	}
 }
