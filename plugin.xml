@@ -130,7 +130,7 @@
       <renameParticipant
             class="org.game.refactor.RenameFileParticipant"
             id="org.game.views.renameParticipant2"
-            name="name">
+            name="UI项目文件改名重构处理器">
          <enablement></enablement>
       </renameParticipant>
    </extension>
@@ -139,7 +139,7 @@
       <moveParticipant
             class="org.game.refactor.MoveFileParticipant"
             id="org.game.views.moveParticipant1"
-            name="name">
+            name="UI项目文件移动重构处理器">
          <enablement></enablement>
       </moveParticipant>
    </extension>

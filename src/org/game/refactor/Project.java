@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.print.attribute.standard.MediaSize.Other;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -139,12 +141,12 @@ public class Project
 		ArrayList<IdRef> result = new ArrayList<IdRef>();
 		for (FileSummay view : views.values())
 		{
-			for(IdRef ref : view.getIDRefs())
+			for (IdRef ref : view.getIDRefs())
 			{
-				IdDef curr=ref.getTarget();
-				if(curr!=null)
+				IdDef curr = ref.getTarget();
+				if (curr != null)
 				{
-					if(curr.getFile().equals(idDef.getFile()) && curr.getStart()==idDef.getStart() && curr.getStop()==idDef.getStop())
+					if (curr.getFile().equals(idDef.getFile()) && curr.getStart() == idDef.getStart() && curr.getStop() == idDef.getStop())
 					{
 						result.add(ref);
 					}
@@ -156,7 +158,156 @@ public class Project
 
 		return result;
 	}
-	
+
+	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, IResource[] others, IProgressMonitor pm) throws CoreException, IOException
+	{
+		ArrayList<IFile> fromFiles=new ArrayList<IFile>();
+		Hashtable<IFile, IFile> froms_dests = new Hashtable<IFile, IFile>();
+		ArrayList<Change> changes = new ArrayList<Project.Change>();
+
+		// 列出所有文件移动前后的对应关系
+		ArrayList<IResource> resources = new ArrayList<IResource>();
+		for (IResource other : others)
+		{
+			boolean isCurr=other.equals(from);
+			resources.add(other);
+			while (resources.size() > 0)
+			{
+				IResource resource = resources.remove(0);
+				if (resource instanceof IFolder)
+				{
+					IFolder curr = (IFolder) resource;
+					for (IResource child : curr.members())
+					{
+						resources.add(child);
+					}
+				}
+				else if (resource instanceof IFile)
+				{
+					IFile fromFile = (IFile) resource;
+					IFile destFile = dest.getFile(fromFile.getLocation().makeRelativeTo(other.getParent().getLocation()));
+
+					froms_dests.put(fromFile, destFile);
+					if(isCurr)
+					{
+						fromFiles.add(fromFile);
+					}
+				}
+			}
+		}
+
+		// 列出项目中所有视图文件（已解析的、未解析的）
+		IProject project = from.getProject();
+		IFolder projectSourceFolder = project.getFolder(SOURCE_FOLDER_NAME);
+		ArrayList<IResource> projectSourceFiles = new ArrayList<IResource>();
+
+		if (!projectTable.containsKey(project))
+		{
+			projectTable.put(project, new Hashtable<String, FileSummay>());
+		}
+
+		Hashtable<String, FileSummay> parsedViews = projectTable.get(project);
+		ArrayList<FileSummay> noParseViews = new ArrayList<FileSummay>();
+
+		projectSourceFiles.add(projectSourceFolder);
+		while (projectSourceFiles.size() > 0)
+		{
+			IResource resource = projectSourceFiles.remove(0);
+			if (resource instanceof IFolder)
+			{
+				for (IResource child : ((IFolder) resource).members())
+				{
+					projectSourceFiles.add(child);
+				}
+			}
+			else if (resource instanceof IFile)
+			{
+				if (resource.getName().toLowerCase().endsWith(".xml"))
+				{
+					IFile file = (IFile) resource;
+					String fileURL = getViewURL(file);
+					if (!parsedViews.containsKey(fileURL))
+					{
+						FileSummay noParseView = new FileSummay(fileURL, file);
+						parsedViews.put(fileURL, noParseView);
+						noParseViews.add(noParseView);
+					}
+				}
+			}
+		}
+
+		// 解析还没有解析的视图文件
+		pm.beginTask("解析视图文件", noParseViews.size() + parsedViews.size() * froms_dests.size());
+		for (int i = 0; i < noParseViews.size(); i++)
+		{
+			noParseViews.get(i).parse();
+			pm.worked(1);
+		}
+
+		// 处理引用
+		System.out.println(">> 处理移动:"+from.getLocation().toString());
+		pm.setTaskName("查找文件引用");
+		for (IFile fromFile : fromFiles)
+		{
+			String fromPath = getViewURL(fromFile);
+
+			IFile destFile = froms_dests.get(fromFile);
+			String destPath = getViewURL(destFile);
+
+			System.out.println("   处理别人对"+from.getLocation().toString()+"的引用");
+			for (FileSummay view : parsedViews.values())
+			{
+				for (FileRef ref : view.getFileRefs())
+				{
+					if (ref.filePath.equals(fromPath))
+					{
+						Change change = new Change();
+						change.owner = froms_dests.containsKey(view.getFile()) ? froms_dests.get(view.getFile()) : view.getFile();
+						change.offset = ref.start;
+						change.length = ref.stop - ref.start + 1;
+						change.text = destPath;
+						changes.add(change);
+						
+						System.out.println("   add range:"+change.offset+","+change.length+","+change.text);
+					}
+				}
+			}
+
+			System.out.println("   处理"+from.getLocation().toString()+"对别人的引用");
+			if(fromFile.getName().toLowerCase().endsWith(".xml"))
+			{
+				FileSummay content = parsedViews.get(getViewURL(fromFile));
+				for (FileRef ref : content.getFileRefs())
+				{
+					IFile file = projectSourceFolder.getFile(new Path(ref.filePath));
+					if(!froms_dests.containsKey(file))
+					{
+						Change change = new Change();
+						change.owner = destFile;
+						change.offset = ref.start;
+						change.length = ref.stop - ref.start + 1;
+						change.text = froms_dests.containsKey(file) ? getViewURL(froms_dests.get(file)) : getViewURL(file);
+						changes.add(change);
+						System.out.println("   add range:"+change.offset+","+change.length+","+change.text);
+					}
+				}
+			}
+			pm.worked(1);
+		}
+
+		keepResourceChangeListener();
+
+		return changes.toArray(new Change[changes.size()]);
+	}
+
+	public static class Change
+	{
+		public IFile owner;
+		public int offset;
+		public int length;
+		public String text;
+	}
+
 	/**
 	 * 获取文件引用
 	 * 
@@ -225,6 +376,7 @@ public class Project
 
 	/**
 	 * 搜索ID引用
+	 * 
 	 * @param target
 	 * @param result
 	 * @param pm
@@ -278,10 +430,10 @@ public class Project
 		{
 			for (IdRef ref : view.getIDRefs())
 			{
-				IdDef curr=ref.getTarget();
-				if(curr!=null)
+				IdDef curr = ref.getTarget();
+				if (curr != null)
 				{
-					if(curr.getFile().equals(target.getFile()) && curr.getStart()==target.getStart() && curr.getStop()==target.getStop())
+					if (curr.getFile().equals(target.getFile()) && curr.getStart() == target.getStart() && curr.getStop() == target.getStop())
 					{
 						result.addMatch(new SearchMatch(ref.getOwner(), ref.getText(), ref.getStart(), ref.getStop() - ref.getStart() + 1));
 						pm.worked(1);
@@ -295,6 +447,7 @@ public class Project
 
 	/**
 	 * 搜索文件引用
+	 * 
 	 * @param file
 	 * @param result
 	 * @param pm
