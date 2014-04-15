@@ -157,7 +157,17 @@ public class Project
 		return result;
 	}
 
+	public static Change[] reanameFileRefactoring(IResource from, String newName, IProgressMonitor pm) throws CoreException, IOException
+	{
+		return findRefactoringFileRef(from, (IFolder) from.getParent(), newName, new IResource[] { from }, pm);
+	}
+
 	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, IResource[] others, IProgressMonitor pm) throws CoreException, IOException
+	{
+		return findRefactoringFileRef(from, dest, from.getName(), others, pm);
+	}
+
+	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, String newName, IResource[] others, IProgressMonitor pm) throws CoreException, IOException
 	{
 		ArrayList<IFile> fromFiles = new ArrayList<IFile>();
 		Hashtable<IFile, IFile> froms_dests = new Hashtable<IFile, IFile>();
@@ -183,7 +193,10 @@ public class Project
 				else if (resource instanceof IFile)
 				{
 					IFile fromFile = (IFile) resource;
-					IFile destFile = dest.getFile(fromFile.getLocation().makeRelativeTo(other.getParent().getLocation()));
+					IFolder fromFolder = (IFolder) fromFile.getParent();
+					// IFile destFile =
+					// dest.getFile(fromFile.getLocation().makeRelativeTo(other.getParent().getLocation()));
+					IFile destFile = dest.getFile(fromFolder.getFile(newName).getLocation().makeRelativeTo(fromFolder.getLocation()));
 
 					froms_dests.put(fromFile, destFile);
 					if (isCurr)
@@ -285,7 +298,7 @@ public class Project
 					{
 						Change change = new Change();
 						change.owner = content.getFile();
-						//change.owner = destFile;
+						// change.owner = destFile;
 						change.offset = ref.start;
 						change.length = ref.stop - ref.start + 1;
 						change.text = froms_dests.containsKey(file) ? getViewURL(froms_dests.get(file)) : getViewURL(file);
