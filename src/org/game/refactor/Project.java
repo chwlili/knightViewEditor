@@ -159,25 +159,65 @@ public class Project
 
 	public static Change[] reanameFileRefactoring(IResource from, String newName, IProgressMonitor pm) throws CoreException, IOException
 	{
-		return findRefactoringFileRef(from, (IFolder) from.getParent(), newName, new IResource[] { from }, pm);
-	}
-
-	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, IResource[] others, IProgressMonitor pm) throws CoreException, IOException
-	{
-		return findRefactoringFileRef(from, dest, from.getName(), others, pm);
-	}
-
-	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, String newName, IResource[] others, IProgressMonitor pm) throws CoreException, IOException
-	{
-		ArrayList<IFile> fromFiles = new ArrayList<IFile>();
 		Hashtable<IFile, IFile> froms_dests = new Hashtable<IFile, IFile>();
-		ArrayList<Change> changes = new ArrayList<Project.Change>();
 
-		// 列出所有文件移动前后的对应关系
-		ArrayList<IResource> resources = new ArrayList<IResource>();
-		for (IResource other : others)
+		if (from instanceof IFile)
 		{
-			boolean isCurr = other.equals(from);
+			froms_dests.put((IFile) from, ((IFolder) from.getParent()).getFile(newName));
+		}
+		else if (from instanceof IFolder)
+		{
+			IFolder dest = ((IFolder) from.getParent()).getFolder(newName);
+
+			ArrayList<IResource> resources = new ArrayList<IResource>();
+			resources.add(from);
+
+			while (resources.size() > 0)
+			{
+				IResource resource = resources.remove(0);
+				if (resource instanceof IFolder)
+				{
+					IFolder folder = (IFolder) resource;
+					for (IResource child : folder.members())
+					{
+						resources.add(child);
+					}
+				}
+				else if (resource instanceof IFile)
+				{
+					IFile file = (IFile) resource;
+					IFile newFile = dest.getFile(file.getLocation().makeRelativeTo(from.getLocation()));
+
+					froms_dests.put(file, newFile);
+				}
+			}
+		}
+
+		return findRefactoringFileRef(from, (IFolder) from.getParent(), froms_dests, pm);
+	}
+
+	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, IResource[] otherFroms, IProgressMonitor pm) throws CoreException, IOException
+	{
+		ArrayList<IResource> froms = new ArrayList<IResource>();
+		Hashtable<IFile, IFile> froms_dests = new Hashtable<IFile, IFile>();
+
+		boolean added = false;
+		for (IResource item : otherFroms)
+		{
+			froms.add(item);
+			if (item.equals(from))
+			{
+				added = true;
+			}
+		}
+		if (!added)
+		{
+			froms.add(from);
+		}
+
+		ArrayList<IResource> resources = new ArrayList<IResource>();
+		for (IResource other : froms)
+		{
 			resources.add(other);
 			while (resources.size() > 0)
 			{
@@ -193,19 +233,18 @@ public class Project
 				else if (resource instanceof IFile)
 				{
 					IFile fromFile = (IFile) resource;
-					IFolder fromFolder = (IFolder) fromFile.getParent();
-					// IFile destFile =
-					// dest.getFile(fromFile.getLocation().makeRelativeTo(other.getParent().getLocation()));
-					IFile destFile = dest.getFile(fromFolder.getFile(newName).getLocation().makeRelativeTo(fromFolder.getLocation()));
-
+					IFile destFile = dest.getFile(fromFile.getLocation().makeRelativeTo(other.getParent().getLocation()));
 					froms_dests.put(fromFile, destFile);
-					if (isCurr)
-					{
-						fromFiles.add(fromFile);
-					}
 				}
 			}
 		}
+		return findRefactoringFileRef(from, dest, froms_dests, pm);
+	}
+
+	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, Hashtable<IFile, IFile> froms_dests, IProgressMonitor pm) throws CoreException, IOException
+	{
+		ArrayList<Change> changes = new ArrayList<Project.Change>();
+		ArrayList<IFile> fromFiles = new ArrayList<IFile>();
 
 		// 列出项目中所有视图文件（已解析的、未解析的）
 		IProject project = from.getProject();
