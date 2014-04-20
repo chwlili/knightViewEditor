@@ -157,7 +157,18 @@ public class Project
 		return result;
 	}
 
-	public static Change[] reanameFileRefactoring(IResource from, String newName, IProgressMonitor pm) throws CoreException, IOException
+	
+	
+	/**
+	 * 重命名资源
+	 * @param from
+	 * @param newName
+	 * @param pm
+	 * @return
+	 * @throws CoreException
+	 * @throws IOException
+	 */
+	public static Change[] reanameResource(IResource from, String newName, IProgressMonitor pm) throws CoreException, IOException
 	{
 		Hashtable<IFile, IFile> froms_dests = new Hashtable<IFile, IFile>();
 
@@ -192,59 +203,6 @@ public class Project
 				}
 			}
 		}
-
-		return findRefactoringFileRef(from, (IFolder) from.getParent(), froms_dests, pm);
-	}
-
-	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, IResource[] otherFroms, IProgressMonitor pm) throws CoreException, IOException
-	{
-		ArrayList<IResource> froms = new ArrayList<IResource>();
-		Hashtable<IFile, IFile> froms_dests = new Hashtable<IFile, IFile>();
-
-		boolean added = false;
-		for (IResource item : otherFroms)
-		{
-			froms.add(item);
-			if (item.equals(from))
-			{
-				added = true;
-			}
-		}
-		if (!added)
-		{
-			froms.add(from);
-		}
-
-		ArrayList<IResource> resources = new ArrayList<IResource>();
-		for (IResource other : froms)
-		{
-			resources.add(other);
-			while (resources.size() > 0)
-			{
-				IResource resource = resources.remove(0);
-				if (resource instanceof IFolder)
-				{
-					IFolder curr = (IFolder) resource;
-					for (IResource child : curr.members())
-					{
-						resources.add(child);
-					}
-				}
-				else if (resource instanceof IFile)
-				{
-					IFile fromFile = (IFile) resource;
-					IFile destFile = dest.getFile(fromFile.getLocation().makeRelativeTo(other.getParent().getLocation()));
-					froms_dests.put(fromFile, destFile);
-				}
-			}
-		}
-		return findRefactoringFileRef(from, dest, froms_dests, pm);
-	}
-
-	public static Change[] findRefactoringFileRef(IResource from, IFolder dest, Hashtable<IFile, IFile> froms_dests, IProgressMonitor pm) throws CoreException, IOException
-	{
-		ArrayList<Change> changes = new ArrayList<Project.Change>();
-		ArrayList<IFile> fromFiles = new ArrayList<IFile>();
 
 		// 列出项目中所有视图文件（已解析的、未解析的）
 		IProject project = from.getProject();
@@ -295,16 +253,15 @@ public class Project
 		}
 
 		// 处理引用
-		System.out.println(">> 处理移动:" + from.getLocation().toString());
+		ArrayList<Change> changes = new ArrayList<Project.Change>();
 		pm.setTaskName("查找文件引用");
-		for (IFile fromFile : fromFiles)
+		for (IFile fromFile : froms_dests.keySet())
 		{
 			String fromPath = getViewURL(fromFile);
 
 			IFile destFile = froms_dests.get(fromFile);
 			String destPath = getViewURL(destFile);
 
-			System.out.println("   处理别人对" + from.getLocation().toString() + "的引用");
 			for (FileSummay view : parsedViews.values())
 			{
 				for (FileRef ref : view.getFileRefs())
@@ -313,20 +270,14 @@ public class Project
 					{
 						Change change = new Change();
 						change.owner = view.getFile();
-						// change.owner =
-						// froms_dests.containsKey(view.getFile()) ?
-						// froms_dests.get(view.getFile()) : view.getFile();
 						change.offset = ref.start;
 						change.length = ref.stop - ref.start + 1;
 						change.text = destPath;
 						changes.add(change);
-
-						System.out.println("   add range:" + change.offset + "," + change.length + "," + change.text);
 					}
 				}
 			}
 
-			System.out.println("   处理" + from.getLocation().toString() + "对别人的引用");
 			if (fromFile.getName().toLowerCase().endsWith(".xml"))
 			{
 				FileSummay content = parsedViews.get(getViewURL(fromFile));
@@ -337,12 +288,170 @@ public class Project
 					{
 						Change change = new Change();
 						change.owner = content.getFile();
-						// change.owner = destFile;
 						change.offset = ref.start;
 						change.length = ref.stop - ref.start + 1;
 						change.text = froms_dests.containsKey(file) ? getViewURL(froms_dests.get(file)) : getViewURL(file);
 						changes.add(change);
-						System.out.println("   add range:" + change.offset + "," + change.length + "," + change.text);
+					}
+				}
+			}
+			pm.worked(1);
+		}
+
+		keepResourceChangeListener();
+
+		return changes.toArray(new Change[changes.size()]);
+	}
+
+	/**
+	 * 移动资源
+	 * @param from
+	 * @param dest
+	 * @param otherFroms
+	 * @param pm
+	 * @return
+	 * @throws CoreException
+	 * @throws IOException
+	 */
+	public static Change[] moveResource(IResource from, IFolder dest, IResource[] otherFroms, IProgressMonitor pm) throws CoreException, IOException
+	{
+		ArrayList<IFile> fromFiles = new ArrayList<IFile>();
+		Hashtable<IFile, IFile> froms_dests = new Hashtable<IFile, IFile>();
+
+		//顶层源资源列表
+		ArrayList<IResource> froms = new ArrayList<IResource>();
+		boolean added = false;
+		for (IResource item : otherFroms)
+		{
+			froms.add(item);
+			if (item.equals(from))
+			{
+				added = true;
+			}
+		}
+		if (!added)
+		{
+			froms.add(from);
+		}
+		
+		//分析所有源文件、分析移动前后位置
+		ArrayList<IResource> resources = new ArrayList<IResource>();
+		for (IResource other : froms)
+		{
+			boolean isFrom=other.equals(from);
+			resources.add(other);
+			while (resources.size() > 0)
+			{
+				IResource resource = resources.remove(0);
+				if (resource instanceof IFolder)
+				{
+					IFolder curr = (IFolder) resource;
+					for (IResource child : curr.members())
+					{
+						resources.add(child);
+					}
+				}
+				else if (resource instanceof IFile)
+				{
+					IFile fromFile = (IFile) resource;
+					IFile destFile = dest.getFile(fromFile.getLocation().makeRelativeTo(other.getParent().getLocation()));
+					froms_dests.put(fromFile, destFile);
+					if(isFrom)
+					{
+						fromFiles.add(fromFile);
+					}
+				}
+			}
+		}
+
+		// 列出项目中所有视图文件（已解析的、未解析的）
+		IProject project = from.getProject();
+		IFolder projectSourceFolder = project.getFolder(SOURCE_FOLDER_NAME);
+		ArrayList<IResource> projectSourceFiles = new ArrayList<IResource>();
+
+		if (!projectTable.containsKey(project))
+		{
+			projectTable.put(project, new Hashtable<String, FileSummay>());
+		}
+
+		Hashtable<String, FileSummay> parsedViews = projectTable.get(project);
+		ArrayList<FileSummay> noParseViews = new ArrayList<FileSummay>();
+
+		projectSourceFiles.add(projectSourceFolder);
+		while (projectSourceFiles.size() > 0)
+		{
+			IResource resource = projectSourceFiles.remove(0);
+			if (resource instanceof IFolder)
+			{
+				for (IResource child : ((IFolder) resource).members())
+				{
+					projectSourceFiles.add(child);
+				}
+			}
+			else if (resource instanceof IFile)
+			{
+				if (resource.getName().toLowerCase().endsWith(".xml"))
+				{
+					IFile file = (IFile) resource;
+					String fileURL = getViewURL(file);
+					if (!parsedViews.containsKey(fileURL))
+					{
+						FileSummay noParseView = new FileSummay(fileURL, file);
+						parsedViews.put(fileURL, noParseView);
+						noParseViews.add(noParseView);
+					}
+				}
+			}
+		}
+
+		// 解析还没有解析的视图文件
+		pm.beginTask("解析视图文件", noParseViews.size() + parsedViews.size() * froms_dests.size());
+		for (int i = 0; i < noParseViews.size(); i++)
+		{
+			noParseViews.get(i).parse();
+			pm.worked(1);
+		}
+
+		// 处理引用
+		ArrayList<Change> changes = new ArrayList<Project.Change>();
+		pm.setTaskName("查找文件引用");
+		for (IFile fromFile : fromFiles)
+		{
+			String fromPath = getViewURL(fromFile);
+
+			IFile destFile = froms_dests.get(fromFile);
+			String destPath = getViewURL(destFile);
+
+			for (FileSummay view : parsedViews.values())
+			{
+				for (FileRef ref : view.getFileRefs())
+				{
+					if (ref.filePath.equals(fromPath))
+					{
+						Change change = new Change();
+						change.owner = view.getFile();
+						change.offset = ref.start;
+						change.length = ref.stop - ref.start + 1;
+						change.text = destPath;
+						changes.add(change);
+					}
+				}
+			}
+
+			if (fromFile.getName().toLowerCase().endsWith(".xml"))
+			{
+				FileSummay content = parsedViews.get(getViewURL(fromFile));
+				for (FileRef ref : content.getFileRefs())
+				{
+					IFile file = projectSourceFolder.getFile(new Path(ref.filePath));
+					if (!froms_dests.containsKey(file))
+					{
+						Change change = new Change();
+						change.owner = content.getFile();
+						change.offset = ref.start;
+						change.length = ref.stop - ref.start + 1;
+						change.text = froms_dests.containsKey(file) ? getViewURL(froms_dests.get(file)) : getViewURL(file);
+						changes.add(change);
 					}
 				}
 			}

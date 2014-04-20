@@ -59,6 +59,18 @@ public class LookFileAction extends Action
 					e.printStackTrace();
 				}
 			}
+			else if(ext.equals("swf"))
+			{
+				try
+				{
+					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+					page.openEditor(new FileEditorInput(file), SwfEditor.ID);
+				}
+				catch (PartInitException e)
+				{
+					e.printStackTrace();
+				}
+			}
 		}
 		else
 		{

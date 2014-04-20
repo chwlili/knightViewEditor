@@ -77,7 +77,7 @@ public class MoveFileParticipant extends MoveParticipant
 		//确定文件变动
 		try
 		{
-			Project.Change[] changes=Project.findRefactoringFileRef((IResource) file, folder, fromFiles, pm);
+			Project.Change[] changes=Project.moveResource((IResource) file, folder, fromFiles, pm);
 			for(Project.Change change:changes)
 			{
 				if (!file_edits.containsKey(change.owner))
@@ -105,7 +105,7 @@ public class MoveFileParticipant extends MoveParticipant
 					root=new CompositeChange("更新对\""+this.file.getLocation().toString()+"\"的引用");
 				}
 				
-				fileEdit= new TextFileChange("", file);
+				fileEdit= new TextFileChange("更改文件\""+file.getLocation().toString()+"\"", file);
 				fileEdit.setEdit(new MultiTextEdit());
 				root.add(fileEdit);
 			}

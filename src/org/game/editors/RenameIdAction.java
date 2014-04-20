@@ -1,8 +1,10 @@
 package org.game.editors;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,6 +33,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.game.refactor.IdDef;
 import org.game.refactor.IdRef;
@@ -245,14 +248,25 @@ public class RenameIdAction extends Action
 			CompositeChange root=new CompositeChange("重构文件引用");
 			try
 			{
+				Hashtable<IFile, TextFileChange> file_changes=new Hashtable<IFile, TextFileChange>();
+				
 				List<IdRef> refs=Project.getIdRefs(idDef);
 				if(refs!=null)
 				{
 					for(IdRef ref:refs)
 					{
-						TextFileChange change=new TextFileChange("haha",ref.getOwner());
-						change.setEdit(new ReplaceEdit(ref.getOffset(),ref.getLength(),name));
-						root.add(change);
+						TextFileChange change=null;
+						if(!file_changes.containsKey(ref.getOwner()))
+						{
+							change = new TextFileChange("",ref.getOwner());
+							change.setEdit(new MultiTextEdit());
+							root.add(change);
+							
+							file_changes.put(ref.getOwner(), change);
+						}
+						
+						change=file_changes.get(ref.getOwner());
+						change.addEdit(new ReplaceEdit(ref.getOffset(),ref.getLength(),name));
 					}
 				}
 			}

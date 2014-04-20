@@ -1,30 +1,33 @@
 package org.game.editors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.FileEditorInput;
 
-public class ProjectEditor extends EditorPart
+public class SwfEditor extends EditorPart
 {
-
-	public ProjectEditor()
+	public static final String ID = "org.game.editors.SWF";
+	
+	public SwfEditor()
 	{
-		// TODO 自动生成的构造函数存根
+
 	}
 
 	@Override
 	public void doSave(IProgressMonitor monitor)
 	{
-		
+
 	}
 
 	@Override
 	public void doSaveAs()
 	{
-		
+
 	}
 
 	@Override
@@ -32,7 +35,7 @@ public class ProjectEditor extends EditorPart
 	{
 		setInput(input);
 		setSite(site);
-		
+
 		setPartName(input.getName());
 	}
 
@@ -51,13 +54,16 @@ public class ProjectEditor extends EditorPart
 	@Override
 	public void createPartControl(Composite parent)
 	{
+		FileEditorInput fileInput=(FileEditorInput)getEditorInput();
 		
+		Swf swf=new Swf(parent, SWT.NONE);
+		swf.loadMovie(fileInput.getFile().getLocation().toFile());
 	}
 
 	@Override
 	public void setFocus()
 	{
-		
+
 	}
 
 }

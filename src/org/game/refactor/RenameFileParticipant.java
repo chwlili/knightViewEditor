@@ -65,7 +65,7 @@ public class RenameFileParticipant extends RenameParticipant
 		//确定文件变动
 		try
 		{
-			Project.Change[] changes=Project.reanameFileRefactoring(file, getArguments().getNewName(), pm);
+			Project.Change[] changes=Project.reanameResource(file, getArguments().getNewName(), pm);
 			for(Project.Change change:changes)
 			{
 				if (!file_edits.containsKey(change.owner))

@@ -69,12 +69,12 @@
             name="图像查看器">
       </editor>
       <editor
-            class="org.game.editors.ProjectEditor"
+            class="org.game.editors.SwfEditor"
             default="true"
-            extensions=".mo"
-            icon="icons/appIcon16.png"
-            id="org.game.editors.PRO"
-            name="汇总编辑器">
+            extensions="swf"
+            icon="icons/swfIcon.png"
+            id="org.game.editors.SWF"
+            name="SWF编辑器">
       </editor>
    </extension>
    <extension

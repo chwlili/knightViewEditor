@@ -32,6 +32,7 @@ public class FileSummay
 	private ArrayList<IdDef> idDefs = new ArrayList<IdDef>();
 
 	private ArrayList<IdDef> bitmapList = new ArrayList<IdDef>();
+	private ArrayList<IdDef> swfList = new ArrayList<IdDef>();
 	private ArrayList<IdDef> bitmapRendererList = new ArrayList<IdDef>();
 	private ArrayList<IdDef> filterList = new ArrayList<IdDef>();
 	private ArrayList<IdDef> formatList = new ArrayList<IdDef>();
@@ -39,6 +40,7 @@ public class FileSummay
 	private ArrayList<IdDef> controlList = new ArrayList<IdDef>();
 
 	private Hashtable<String, IdDef> bitmapTable = new Hashtable<String, IdDef>();
+	private Hashtable<String, IdDef> swfTable = new Hashtable<String, IdDef>();
 	private Hashtable<String, IdDef> bitmapRendererTable = new Hashtable<String, IdDef>();
 	private Hashtable<String, IdDef> filterTable = new Hashtable<String, IdDef>();
 	private Hashtable<String, IdDef> formatTable = new Hashtable<String, IdDef>();
@@ -56,15 +58,15 @@ public class FileSummay
 		this.innerPath = innerPath;
 		this.file = file;
 	}
-	
+
 	/**
-	 *  获取文件 
+	 * 获取文件
 	 */
 	public IFile getFile()
 	{
 		return file;
 	}
-	
+
 	/**
 	 * 路径
 	 * 
@@ -218,6 +220,7 @@ public class FileSummay
 		idDefs.clear();
 
 		bitmapList.clear();
+		swfList.clear();
 		bitmapRendererList.clear();
 		filterList.clear();
 		formatList.clear();
@@ -225,6 +228,7 @@ public class FileSummay
 		controlList.clear();
 
 		bitmapTable.clear();
+		swfTable.clear();
 		bitmapRendererTable.clear();
 		filterTable.clear();
 		formatTable.clear();
@@ -265,6 +269,10 @@ public class FileSummay
 				else if (tagName.equals("bitmaps"))
 				{
 					parseBitmaps(node);
+				}
+				else if (tagName.equals("swfs"))
+				{
+					parseSwfs(node);
 				}
 				else if (tagName.equals("bitmapReaders"))
 				{
@@ -318,6 +326,64 @@ public class FileSummay
 							fileRefs.add(ref);
 						}
 						break;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 解析swfs
+	 * 
+	 * @param root
+	 */
+	private void parseSwfs(ComplexNodeContext root)
+	{
+		for (ParseTree child : root.children)
+		{
+			String tagName = getNodeName(child);
+			if (tagName.equals("swf"))
+			{
+				String bitmapID = null;
+				int bitmapIDStart = 0;
+				int bitmapIDStop = 0;
+				FileRef swfRef = null;
+
+				List<AttributeContext> attributes = getNodeAttributes(child);
+				for (AttributeContext attribute : attributes)
+				{
+					String attributeName = attribute.name.getText();
+
+					String txt = attribute.value.getText();
+					int start = attribute.value.start.getStartIndex();
+					int stop = attribute.value.stop.getStopIndex();
+					if (attributeName.equals("id"))
+					{
+						bitmapID = txt;
+						bitmapIDStart = start;
+						bitmapIDStop = stop;
+					}
+					else if (attributeName.equals("src"))
+					{
+						String value = PathUtil.toAbsPath(innerPath, txt);
+						if (value != null)
+						{
+							swfRef = new FileRef(file, txt, start, stop, value);
+						}
+					}
+				}
+
+				if (bitmapID != null)
+				{
+					IdDef id = new IdDef(file, bitmapID, bitmapIDStart, bitmapIDStop, swfRef);
+
+					idDefs.add(id);
+					swfList.add(id);
+					swfTable.put(bitmapID, id);
+
+					if (swfRef != null)
+					{
+						fileRefs.add(swfRef);
 					}
 				}
 			}
