@@ -13,6 +13,8 @@ public class SwfEditor extends EditorPart
 {
 	public static final String ID = "org.game.editors.SWF";
 	
+	private Swf swf;
+	
 	public SwfEditor()
 	{
 
@@ -56,14 +58,14 @@ public class SwfEditor extends EditorPart
 	{
 		FileEditorInput fileInput=(FileEditorInput)getEditorInput();
 		
-		Swf swf=new Swf(parent, SWT.NONE);
+		swf=new Swf(parent, SWT.NONE);
 		swf.loadMovie(fileInput.getFile().getLocation().toFile());
 	}
 
 	@Override
 	public void setFocus()
 	{
-
+		swf.setFocus();
 	}
 
 }

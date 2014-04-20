@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Display;
 
 public class Swf extends Composite
 {
+	private OleFrame frame;
 	private OleAutomation player;
 
 	/**
@@ -33,13 +34,12 @@ public class Swf extends Composite
 
 	protected void createContents() 
 	{  
-		OleControlSite controlSite;  
-		  
+		frame = new OleFrame(this, SWT.NO_TRIM);  
+		frame.setLayout(new FillLayout());    
+		
+		OleControlSite controlSite;
 		try 
 		{
-			OleFrame frame = new OleFrame(this, SWT.NO_TRIM);  
-			frame.setLayout(new FillLayout());  
-			//frame.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));  
 			controlSite = new OleControlSite(frame, SWT.NO_TRIM, "{D27CDB6E-AE6D-11cf-96B8-444553540000}");  
 			controlSite.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));  
 			controlSite.setRedraw(true);  
