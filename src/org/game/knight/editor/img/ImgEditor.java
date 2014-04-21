@@ -160,11 +160,11 @@ public class ImgEditor extends EditorPart implements IMenuListener, PaintListene
 			}
 			else if(type==1)
 			{
-				scale+=.1f;
+				scale+=.3f;
 			}
 			else if(type==2)
 			{
-				scale-=.1f;
+				scale-=.3f;
 			}
 			
 			if(scale<0)
@@ -311,7 +311,7 @@ public class ImgEditor extends EditorPart implements IMenuListener, PaintListene
 	@Override
 	public void mouseScrolled(MouseEvent e)
 	{
-		scale += (e.count > 0 ? 1f / 10f : -1f / 10f);
+		scale += e.count/10f;
 		if (scale < 0)
 		{
 			scale = 0;
