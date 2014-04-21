@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Views
 Bundle-SymbolicName: org.game.knight.viewEditor;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.game.views.Activator
+Bundle-Activator: org.game.knight.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,

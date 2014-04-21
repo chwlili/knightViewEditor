@@ -11,8 +11,8 @@
       </category>
       <wizard
             category="org.game.views.viewCategory"
-            class="org.game.views.wizard.NewProjectWizard"
-            icon="icons/protoProjectIcon.png"
+            class="org.game.knight.wizard.NewProjectWizard"
+            icon="icons/projectIcon.gif"
             id="org.game.views.viewProject"
             name="视图项目"
             project="true">
@@ -21,7 +21,7 @@
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
-            icon="icons/protoProjectIcon.png"
+            icon="icons/projectIcon.gif"
             id="org.chw.game.ide.ViewNature"
             natureId="org.chw.game.ide.ViewNature">
       </image>
@@ -33,7 +33,7 @@
       <builder
             hasNature="true">
          <run
-               class="org.game.project.ViewProjectBuilder">
+               class="org.game.knight.builder.ViewProjectBuilder">
          </run>
       </builder>
    </extension>
@@ -43,7 +43,7 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="org.game.project.ViewProjectNature">
+               class="org.game.knight.builder.ViewProjectNature">
          </run>
       </runtime>
       <builder
@@ -53,26 +53,26 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="org.game.editors.ViewEditor"
+            class="org.game.knight.editor.xml.ViewEditor"
             default="true"
             extensions="xml"
-            icon="icons/viewFileIcon.gif"
+            icon="icons/fileIcon_view.gif"
             id="org.game.editors.XML"
             name="视图编辑器">
       </editor>
       <editor
-            class="org.game.editors.ImgEditor"
+            class="org.game.knight.editor.img.ImgEditor"
             default="true"
             extensions="png,jpg"
-            icon="icons/imgFileIcon.gif"
+            icon="icons/fileIcon_img.gif"
             id="org.game.editors.IMG"
             name="图像查看器">
       </editor>
       <editor
-            class="org.game.editors.SwfEditor"
+            class="org.game.knight.editor.swf.SwfEditor"
             default="true"
             extensions="swf"
-            icon="icons/swfIcon.png"
+            icon="icons/fileIcon_swf.gif"
             id="org.game.editors.SWF"
             name="SWF编辑器">
       </editor>
@@ -80,10 +80,10 @@
    <extension
          point="org.eclipse.search.searchResultViewPages">
       <viewPage
-            class="org.game.views.search.SearchResultView"
-            icon="icons/appIcon16.png"
+            class="org.game.knight.search.SearchResultView"
+            icon="icons/actionIcon.gif"
             id="org.game.views.search.view"
-            searchResultClass="org.game.views.search.SearchResult">
+            searchResultClass="org.game.knight.search.SearchResult">
       </viewPage>
    </extension>
    <extension
@@ -94,24 +94,24 @@
             id="org.game.views.objectContribution1"
             objectClass="org.eclipse.core.resources.IFile">
          <action
-               class="org.game.refactor.RenameFileAction"
+               class="org.game.knight.refactor.RenameFileAction"
                enablesFor="1"
-               icon="icons/appIcon16.png"
+               icon="icons/actionIcon.gif"
                id="org.game.views.action1"
                label="重命名..."
                menubarPath="org.chw.viewer.refactoring">
          </action>
          <action
-               class="org.game.refactor.MoveFileAction"
-               icon="icons/appIcon16.png"
+               class="org.game.knight.refactor.MoveFileAction"
+               icon="icons/actionIcon.gif"
                id="org.game.views.action1"
                label="移动..."
                menubarPath="org.chw.viewer.refactoring">
          </action>
          <action
-               class="org.game.views.search.SearchFileRefAction"
+               class="org.game.knight.search.SearchFileRefAction"
                enablesFor="1"
-               icon="icons/appIcon16.png"
+               icon="icons/actionIcon.gif"
                id="org.game.views.action1"
                label="查找引用"
                menubarPath="group.find">
@@ -122,15 +122,15 @@
             id="knightViewEditor.objectContribution2"
             objectClass="org.eclipse.core.resources.IFolder">
          <action
-               class="org.game.refactor.RenameFileAction"
-               icon="icons/appIcon16.png"
+               class="org.game.knight.refactor.RenameFileAction"
+               icon="icons/actionIcon.gif"
                id="knightViewEditor.action4"
                label="重命名..."
                menubarPath="org.chw.viewer.refactoring">
          </action>
          <action
-               class="org.game.refactor.MoveFileAction"
-               icon="icons/appIcon16.png"
+               class="org.game.knight.refactor.MoveFileAction"
+               icon="icons/actionIcon.gif"
                id="knightViewEditor.action3"
                label="移动..."
                menubarPath="org.chw.viewer.refactoring">
@@ -140,7 +140,7 @@
    <extension
          point="org.eclipse.ltk.core.refactoring.renameParticipants">
       <renameParticipant
-            class="org.game.refactor.RenameFileParticipant"
+            class="org.game.knight.refactor.RenameFileParticipant"
             id="org.game.views.renameParticipant2"
             name="UI项目文件改名重构处理器">
          <enablement></enablement>
@@ -149,7 +149,7 @@
    <extension
          point="org.eclipse.ltk.core.refactoring.moveParticipants">
       <moveParticipant
-            class="org.game.refactor.MoveFileParticipant"
+            class="org.game.knight.refactor.MoveFileParticipant"
             id="org.game.views.moveParticipant1"
             name="UI项目文件移动重构处理器">
          <enablement></enablement>
@@ -164,7 +164,7 @@
       <view
             category="org.game.views.category1"
             class="org.eclipse.ui.navigator.CommonNavigator"
-            icon="icons/appIcon16.png"
+            icon="icons/actionIcon.gif"
             id="org.game.views.view1"
             name="UI资源管理器"
             restorable="true">
@@ -246,7 +246,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.game.knight.perspective.UiPerspective"
-            icon="icons/appIcon16.png"
+            icon="icons/projectIcon.gif"
             id="org.game.knight.viewEditor.perspective1"
             name="UI开发">
       </perspective>
