@@ -33,7 +33,7 @@ public interface XmlVisitor<T> extends ParseTreeVisitor<T> {
 	T visitComm(@NotNull XmlParser.CommContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link XmlParser#url}.
+	 * Visit a parse tree produced by {@link XmlParser#text}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
@@ -73,13 +73,6 @@ public interface XmlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitDtd(@NotNull XmlParser.DtdContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link XmlParser#space}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSpace(@NotNull XmlParser.SpaceContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link XmlParser#complexNode}.

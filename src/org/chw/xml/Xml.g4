@@ -24,7 +24,7 @@ root
 		process
 		| dtd
 		| comm
-		| space
+		| WS
 	)*
 	(
 		singleNode
@@ -32,7 +32,7 @@ root
 	)
 	(
 		comm
-		| space
+		| WS
 	)*
 ;
 
@@ -58,12 +58,12 @@ cdata
 
 singleNode
 :
-	BRACKET_L tagName = NAME attribute* space? SLASH BRACKET_R
+	begin=BRACKET_L tagName = NAME attribute* WS? slash=SLASH end=BRACKET_R
 ;
 
 complexNode
 :
-	BRACKET_L tagName = NAME attribute* space? BRACKET_R
+	beginL=BRACKET_L tagName = NAME attribute* WS? beginR=BRACKET_R
 	(
 		process
 		| dtd
@@ -75,15 +75,15 @@ complexNode
 	)*
 	{checkEndTag($tagName.text)}?
 
-	BRACKET_L SLASH NAME BRACKET_R
+	endL=BRACKET_L endSlash=SLASH endName=NAME endR=BRACKET_R
 ;
 
 attribute
 :
-	space+ name = NAME space? EQUALS space?
+	space=WS name = NAME WS? equals=EQUALS WS?
 	(
-		DOUBLE_QUOTE value = attributeValue ['\''] DOUBLE_QUOTE
-		| SINGLE_QUOTE value = attributeValue ['\"'] SINGLE_QUOTE
+		begin=DOUBLE_QUOTE value = attributeValue ['\''] end=DOUBLE_QUOTE
+		| begin=SINGLE_QUOTE value = attributeValue ['\"'] end=SINGLE_QUOTE
 	)
 ;
 
@@ -118,14 +118,7 @@ text
 	| DOUBLE_QUOTE
 	| SINGLE_QUOTE
 	| WS
-	| BR
 	| OTHER
-;
-
-space
-:
-	WS
-	| BR
 ;
 
 PROCESS
@@ -201,12 +194,7 @@ SINGLE_QUOTE
 
 WS
 :
-	[ |\t]+
-;
-
-BR
-:
-	[\r|\n]+
+	[ |\t|\r|\n]+
 ;
 
 OTHER

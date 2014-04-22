@@ -134,19 +134,6 @@ public class XmlBaseListener implements XmlListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterSpace(@NotNull XmlParser.SpaceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitSpace(@NotNull XmlParser.SpaceContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterComplexNode(@NotNull XmlParser.ComplexNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}

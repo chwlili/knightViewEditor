@@ -25,6 +25,7 @@ public class FileAst
 {
 	private String innerPath;
 	private IFile file;
+	private AST ast;
 
 	private ArrayList<FileRef> dependRefs = new ArrayList<FileRef>();
 	private ArrayList<FileRef> fileRefs = new ArrayList<FileRef>();
@@ -75,6 +76,11 @@ public class FileAst
 	public String getPath()
 	{
 		return innerPath;
+	}
+	
+	public AST getAST()
+	{
+		return ast;
 	}
 
 	/**
@@ -247,6 +253,8 @@ public class FileAst
 				break;
 			}
 		}
+		
+		ast=new AST(root);
 	}
 
 	/**

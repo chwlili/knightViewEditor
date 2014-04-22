@@ -42,12 +42,12 @@ public interface XmlListener extends ParseTreeListener {
 	void exitComm(@NotNull XmlParser.CommContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link XmlParser#url}.
+	 * Enter a parse tree produced by {@link XmlParser#text}.
 	 * @param ctx the parse tree
 	 */
 	void enterText(@NotNull XmlParser.TextContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link XmlParser#url}.
+	 * Exit a parse tree produced by {@link XmlParser#text}.
 	 * @param ctx the parse tree
 	 */
 	void exitText(@NotNull XmlParser.TextContext ctx);
@@ -106,17 +106,6 @@ public interface XmlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDtd(@NotNull XmlParser.DtdContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link XmlParser#space}.
-	 * @param ctx the parse tree
-	 */
-	void enterSpace(@NotNull XmlParser.SpaceContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link XmlParser#space}.
-	 * @param ctx the parse tree
-	 */
-	void exitSpace(@NotNull XmlParser.SpaceContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link XmlParser#complexNode}.

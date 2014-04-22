@@ -90,13 +90,5 @@ public class XmlBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements Xm
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
-	@Override public T visitSpace(@NotNull XmlParser.SpaceContext ctx) { return visitChildren(ctx); }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 */
 	@Override public T visitComplexNode(@NotNull XmlParser.ComplexNodeContext ctx) { return visitChildren(ctx); }
 }
