@@ -15,23 +15,41 @@ public class TagAttribute
 		this.value=value;
 	}
 	
-	public AST.Token getStart()
+	public AST.Token getStartToken()
 	{
 		return start;
 	}
 
-	public AST.Token getStop()
+	public AST.Token getStopToken()
 	{
 		return stop;
 	}
 
-	public AST.Token getName()
+	public AST.Token getNameToken()
 	{
 		return name;
 	}
 
-	public AST.Token getValue()
+	public AST.Token getValueToken()
 	{
 		return value;
+	}
+	
+	/**
+	 * 获取属性名称
+	 * @return
+	 */
+	public String getName()
+	{
+		return name.text;
+	}
+	
+	/**
+	 * 获取属性值
+	 * @return
+	 */
+	public String getValue()
+	{
+		return value.text;
 	}
 }

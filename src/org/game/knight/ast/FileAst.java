@@ -254,7 +254,7 @@ public class FileAst
 			}
 		}
 		
-		ast=new AST(root);
+		ast=new AST(file,root);
 	}
 
 	/**

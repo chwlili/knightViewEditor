@@ -18,12 +18,14 @@ import org.chw.xml.XmlParser.ProcessContext;
 import org.chw.xml.XmlParser.RootContext;
 import org.chw.xml.XmlParser.SingleNodeContext;
 import org.chw.xml.XmlParser.TextContext;
+import org.eclipse.core.resources.IFile;
 
 public class AST
 {
+	private IFile file;
 	private Dom dom;
-	
-	public AST(RootContext root)
+
+	public AST(IFile file, RootContext root)
 	{
 		build(root);
 	}
@@ -36,7 +38,6 @@ public class AST
 	private void build(RootContext root)
 	{
 		dom = (Dom) root.accept(visitor);
-		System.out.println("xx");
 	}
 
 	public static class Token
@@ -95,7 +96,7 @@ public class AST
 				children.add(visit(childNode));
 			}
 
-			return new Dom(tokens, children);
+			return new Dom(file,tokens, children);
 		}
 
 		@Override
@@ -203,7 +204,7 @@ public class AST
 				}
 			}
 
-			return new SingleTag(first, last, name, attributes);
+			return new Tag(first, last, name, attributes);
 		}
 
 		@Override
@@ -278,7 +279,7 @@ public class AST
 				}
 			}
 
-			return new Tag(first, last, name, attributes, children);
+			return new ComplexTag(first, last, name, attributes, children);
 		}
 
 		@Override
