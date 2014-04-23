@@ -81,6 +81,7 @@ public class Dom
 				}
 				else if (tagName.equals("swfs"))
 				{
+					initalizeSwfs(tag);
 				}
 				else if (tagName.equals("bitmapReaders"))
 				{
@@ -106,8 +107,10 @@ public class Dom
 	private ArrayList<FileRef> fileRefs = new ArrayList<FileRef>();
 
 	private ArrayList<FileRef> depends = new ArrayList<FileRef>();
-	private ArrayList<IdDef> bimaps=new ArrayList<IdDef>();
-	
+	private ArrayList<IdDef> bimaps = new ArrayList<IdDef>();
+	private ArrayList<IdDef> swfs = new ArrayList<IdDef>();
+
+	//depends
 	private void initalizeDepends(ComplexTag tag)
 	{
 		for (Object child : tag.getChildren())
@@ -123,6 +126,7 @@ public class Dom
 				continue;
 			}
 
+			//取出src属性
 			TagAttribute srcAttribute = curr.getAttributeToken("src");
 			if (srcAttribute == null)
 			{
@@ -130,6 +134,7 @@ public class Dom
 				continue;
 			}
 
+			//取出src属性值
 			String srcValue = srcAttribute.getValue();
 			if (srcValue.trim().isEmpty())
 			{
@@ -137,19 +142,24 @@ public class Dom
 				continue;
 			}
 
+			//转换src属性
 			String destURL = PathUtil.toAbsPath(innerPath, srcValue);
 			if (destURL == null)
 			{
 				System.err.println("depend节点的src属性引用的文件未找到!");
 				continue;
 			}
-
+			
+			//记录文件引用
 			FileRef fileRef = new FileRef(file, srcValue, srcAttribute.getStartToken().start, srcAttribute.getStopToken().stop, destURL);
-			depends.add(fileRef);
 			fileRefs.add(fileRef);
+
+			//记录depend
+			depends.add(fileRef);
 		}
 	}
 
+	//bitmaps
 	private void initalizeBitmaps(ComplexTag tag)
 	{
 		for (Object child : tag.getChildren())
@@ -165,35 +175,81 @@ public class Dom
 				continue;
 			}
 
+			//取出ID属性
+			String idValue = null;
 			TagAttribute idAttribute = curr.getAttributeToken("id");
+			if(idAttribute!=null)
+			{
+				idValue = idAttribute.getValue();
+			}
+			
+			//检查ID属性
 			if (idAttribute == null)
 			{
 				System.err.println("bitmap节点没有id属性!");
-				continue;
 			}
-
-			String idValue = idAttribute.getValue();
-			if (idValue.trim().isEmpty())
+			else if (idValue.trim().isEmpty())
 			{
 				System.err.println("bitmap节点的id属性不能为空!");
-				continue;
 			}
 
+			//取出dependId属性
+			String dependValue = null;
 			TagAttribute dependAttribute = curr.getAttributeToken("dependId");
-			TagAttribute srcAttribute = curr.getAttributeToken("src");
-			if (dependAttribute == null && srcAttribute == null)
+			if(dependAttribute!=null)
 			{
-				System.err.println("bitmap节点没有src属性也没有dependId属性!");
-				continue;
+				dependValue = dependAttribute.getValue();
 			}
-
+			
+			//取出src属性
+			String srcValue = null;
+			TagAttribute srcAttribute = curr.getAttributeToken("src");
+			if(srcAttribute!=null)
+			{
+				srcValue = srcAttribute.getValue();
+			}
+			
+			//检查dependId和src属性
+			if(dependAttribute!=null)
+			{
+				if(dependValue.trim().isEmpty())
+				{
+					System.err.println("bitmap节点的dependId属性不能为空!");
+				}
+			}
+			else if(srcAttribute!=null)
+			{
+				if(srcValue.trim().isEmpty())
+				{
+					System.err.println("bitmap节点的src属性不能为空!");
+				}
+			}
+			else
+			{
+				System.err.println("bitmap节点的没有dependId属性也没有src属性!");
+			}
+			
+			//转换dependId属性
+			String dependURL=null;
+			if(dependValue!=null)
+			{
+				
+			}
+			
+			FileRef fileRef = null; 
+			if(destURL!=null)
+			{
+				fileRef = new FileRef(file, srcValue, srcAttribute.getStartToken().start, srcAttribute.getStopToken().stop, destURL);
+				fileRefs.add(fileRef);
+			}
+			
 			IdDef idDef = null;
 			IdRef idRef = null;
-			FileRef fileRef=null;
-			
+			FileRef fileRef = null;
+
 			if (dependAttribute != null)
 			{
-				String dependValue = dependAttribute.getValue();
+				dependValue = dependAttribute.getValue();
 				if (dependValue.trim().isEmpty())
 				{
 					System.err.println("bitmap节点的dependId属性不能为空!");
@@ -201,34 +257,39 @@ public class Dom
 				idRef = new IdRef(null, IdRef.REF_Bitmap, dependValue, dependAttribute.getStartToken().start, dependAttribute.getStopToken().stop);
 				idRefs.add(idRef);
 			}
-			
-			if(srcAttribute!=null)
+
+			if (srcAttribute != null)
 			{
 				String srcValue = srcAttribute.getValue();
-				if(srcValue.trim().isEmpty())
+				if (srcValue.trim().isEmpty())
 				{
 					System.err.println("bitmap节点的src属性不能为空!");
 				}
 				String destURL = PathUtil.toAbsPath(innerPath, srcValue);
-				
+
 				fileRef = new FileRef(file, srcValue, dependAttribute.getStartToken().start, dependAttribute.getStopToken().stop, destURL);
 				fileRefs.add(fileRef);
 			}
-			
-			if(idRef!=null)
+
+			if (idRef != null)
 			{
-				idDef=new IdDef(file, idValue, idAttribute.getStartToken().start, idAttribute.getStopToken().stop, idRef);
+				idDef = new IdDef(file, idValue, idAttribute.getStartToken().start, idAttribute.getStopToken().stop, idRef);
 			}
-			else if(fileRef!=null)
+			else if (fileRef != null)
 			{
-				idDef=new IdDef(file, idValue, idAttribute.getStartToken().start, idAttribute.getStopToken().stop, fileRef);
+				idDef = new IdDef(file, idValue, idAttribute.getStartToken().start, idAttribute.getStopToken().stop, fileRef);
 			}
-			
+			else
+			{
+				idDef = new IdDef(file, idValue, idAttribute.getStartToken().start, idAttribute.getStopToken().stop);
+			}
+
 			idDefs.add(idDef);
 			bimaps.add(idDef);
 		}
 	}
-	
+
+	//swfs
 	private void initalizeSwfs(ComplexTag tag)
 	{
 		for (Object child : tag.getChildren())
@@ -239,23 +300,73 @@ public class Dom
 			}
 
 			Tag curr = (Tag) child;
-			if (!curr.getName().equals("bitmap"))
+			if (!curr.getName().equals("swf"))
 			{
 				continue;
 			}
-
+			
+			//取出id属性
+			String idValue = null;
 			TagAttribute idAttribute = curr.getAttributeToken("id");
-			if (idAttribute == null)
+			if (idAttribute != null)
 			{
-				System.err.println("bitmap节点没有id属性!");
-				continue;
+				idValue=idAttribute.getValue();
 			}
 
-			String idValue = idAttribute.getValue();
-			if (idValue.trim().isEmpty())
+			//检查id属性
+			if(idAttribute==null)
 			{
-				System.err.println("bitmap节点的id属性不能为空!");
-				continue;
+				System.err.println("swf节点没有id属性!");
+			}
+			else if (idValue.trim().isEmpty())
+			{
+				System.err.println("swf节点的id属性不能为空!");
+			}
+			
+			//取出src属性
+			String srcValue = null;
+			TagAttribute srcAttribute = curr.getAttributeToken("src");
+			if (srcAttribute != null)
+			{
+				srcValue=srcAttribute.getValue();
+			}
+			
+			//检查src属性
+			if(srcAttribute==null)
+			{
+				System.err.println("swf节点没有src属性!");
+			}
+			else if (srcValue.trim().isEmpty())
+			{
+				System.err.println("swf节点的src属性不能为空!");
+			}
+
+			//转换src属性
+			String destURL = null;
+			if (srcValue != null)
+			{
+				destURL=PathUtil.toAbsPath(innerPath, srcValue);
+				if(destURL==null)
+				{
+					System.err.println("swf节点的src属性引用的文件未找到!");
+				}
+			}
+
+			//记录文件引用
+			FileRef fileRef = null; 
+			if(destURL!=null)
+			{
+				fileRef = new FileRef(file, srcValue, srcAttribute.getStartToken().start, srcAttribute.getStopToken().stop, destURL);
+				fileRefs.add(fileRef);
+			}
+
+			//记录ID定义
+			if(idValue!=null)
+			{
+				IdDef id = new IdDef(file, idValue, idAttribute.getStartToken().start, idAttribute.getStopToken().stop, fileRef);
+				idDefs.add(id);
+				
+				swfs.add(id);
 			}
 		}
 	}
