@@ -1,6 +1,9 @@
 package org.game.knight.ast;
 
+import java.io.IOException;
+
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 
 public class IdRef
 {
@@ -11,7 +14,7 @@ public class IdRef
 	public static final int REF_Text = 5;
 	public static final int Ref_Control = 6;
 
-	private FileAst ast;
+	private ASTLinks ast;
 	private int type;
 	private String text;
 	private int start;
@@ -25,7 +28,7 @@ public class IdRef
 	 * @param start
 	 * @param stop
 	 */
-	public IdRef(FileAst ast, int type, String text, int start, int stop)
+	public IdRef(ASTLinks ast, int type, String text, int start, int stop)
 	{
 		this.ast = ast;
 		this.type = type;
@@ -48,10 +51,24 @@ public class IdRef
 	 * ≤È’“∂®“Â
 	 * 
 	 * @return
+	 * @throws IOException 
+	 * @throws CoreException 
 	 */
 	public IdDef getTarget()
 	{
-		return ast.findIDDef(this);
+		try
+		{
+			return ast.findIDDef(this);
+		}
+		catch (CoreException e)
+		{
+			System.err.println(e.getMessage());
+		}
+		catch (IOException e)
+		{
+			System.err.println(e.getMessage());
+		}
+		return null;
 	}
 
 	/**

@@ -8,7 +8,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.FileRef;
 import org.game.knight.editor.img.ImgEditor;
 import org.game.knight.editor.swf.SwfEditor;
@@ -34,7 +34,7 @@ public class LookFileAction extends Action
 	{
 		IFile owner = ref.getFile();
 
-		IFile file = FileAstManager.getSourceFile(owner.getProject(), ref.getTargetURL());
+		IFile file = ASTManager.getSourceFile(owner.getProject(), ref.getTargetURL());
 		if (file.exists())
 		{
 			String ext = file.getFileExtension().toLowerCase();

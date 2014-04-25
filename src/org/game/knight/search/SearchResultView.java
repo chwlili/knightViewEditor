@@ -180,11 +180,11 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 			{
 				if(element instanceof SearchMatch)
 				{
-					return PluginResource.getIcon("/icons/tag.gif");
+					return PluginResource.getIcon("tag.gif");
 				}
 				if(element instanceof IFile)
 				{
-					return PluginResource.getIcon("/icons/appIcon16.png");
+					return PluginResource.getIcon("actionIcon.gif");
 				}
 				return null;
 			}
@@ -269,7 +269,7 @@ public class SearchResultView extends AbstractTextSearchViewPage implements ISea
 			@Override
 			public Image getImage(Object element)
 			{
-				return PluginResource.getIcon("/icons/tag.gif");
+				return PluginResource.getIcon("tag.gif");
 			}
 		});
 	}

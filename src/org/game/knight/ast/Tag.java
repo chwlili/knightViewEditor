@@ -70,7 +70,7 @@ public class Tag
 	 */
 	public boolean hasAttribute(String name)
 	{
-		return attributeTable.contains(name);
+		return attributeTable.containsKey(name);
 	}
 	
 	/**
@@ -78,9 +78,9 @@ public class Tag
 	 * @param name
 	 * @return
 	 */
-	public TagAttribute getAttributeToken(String name)
+	public TagAttribute getAttribute(String name)
 	{
-		if(attributeTable.contains(name))
+		if(attributeTable.containsKey(name))
 		{
 			return attributeTable.get(name);
 		}
@@ -94,7 +94,7 @@ public class Tag
 	 */
 	public String getAttributeValue(String name)
 	{
-		if(attributeTable.contains(name))
+		if(attributeTable.containsKey(name))
 		{
 			return attributeTable.get(name).getValue();
 		}

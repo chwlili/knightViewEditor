@@ -10,7 +10,7 @@ import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.FileRef;
 
 public class SearchFileRefAction extends Action implements IObjectActionDelegate
@@ -45,7 +45,7 @@ public class SearchFileRefAction extends Action implements IObjectActionDelegate
 
 		IFile owner = ref.getFile();
 
-		IFile file = FileAstManager.getSourceFile(owner.getProject(), ref.getTargetURL());
+		IFile file = ASTManager.getSourceFile(owner.getProject(), ref.getTargetURL());
 		if (file.exists())
 		{
 			NewSearchUI.activateSearchResultView();

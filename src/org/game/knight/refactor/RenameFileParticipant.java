@@ -18,7 +18,8 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
+import org.game.knight.ast.MyChange;
 
 public class RenameFileParticipant extends RenameParticipant
 {
@@ -66,8 +67,8 @@ public class RenameFileParticipant extends RenameParticipant
 		//确定文件变动
 		try
 		{
-			FileAstManager.Change[] changes=FileAstManager.reanameResource(file, getArguments().getNewName(), pm);
-			for(FileAstManager.Change change:changes)
+			MyChange[] changes=ASTManager.reanameResource(file, getArguments().getNewName(), pm);
+			for(MyChange change:changes)
 			{
 				if (!file_edits.containsKey(change.owner))
 				{

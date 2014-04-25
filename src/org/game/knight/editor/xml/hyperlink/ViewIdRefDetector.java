@@ -12,12 +12,11 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.FileRef;
 import org.game.knight.ast.IdDef;
 import org.game.knight.ast.IdRef;
 import org.game.knight.editor.img.ImgEditor;
-import org.game.knight.editor.xml.DomManager;
 import org.game.knight.editor.xml.ViewEditor;
 
 public class ViewIdRefDetector implements IHyperlinkDetector
@@ -26,7 +25,9 @@ public class ViewIdRefDetector implements IHyperlinkDetector
 	@Override
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks)
 	{
-		IdRef ref = DomManager.getDomManager(textViewer.getDocument()).getIdRef(region.getOffset());
+		IdRef ref = ASTManager.getDocumentAST(textViewer.getDocument()).getLinks().getIdRef(region.getOffset());
+		// IdRef ref =
+		// DomManager.getDomManager(textViewer.getDocument()).getIdRef(region.getOffset());
 		if (ref != null)
 		{
 			IRegion linkRegion = new Region(ref.getOffset(), ref.getLength());
@@ -123,7 +124,7 @@ public class ViewIdRefDetector implements IHyperlinkDetector
 					if (idDef.getRef() instanceof FileRef)
 					{
 						FileRef fileRef = (FileRef) idDef.getRef();
-						IFile file = FileAstManager.getSourceFile(idDef.getFile().getProject(), fileRef.getTargetURL());
+						IFile file = ASTManager.getSourceFile(idDef.getFile().getProject(), fileRef.getTargetURL());
 						if (file != null)
 						{
 							try

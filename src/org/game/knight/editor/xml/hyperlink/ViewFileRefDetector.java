@@ -13,10 +13,10 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
+import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.FileRef;
 import org.game.knight.editor.img.ImgEditor;
 import org.game.knight.editor.swf.SwfEditor;
-import org.game.knight.editor.xml.DomManager;
 import org.game.knight.editor.xml.ViewEditor;
 
 public class ViewFileRefDetector implements IHyperlinkDetector
@@ -25,7 +25,9 @@ public class ViewFileRefDetector implements IHyperlinkDetector
 	@Override
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks)
 	{
-		FileRef ref = DomManager.getDomManager(textViewer.getDocument()).getFileRef(region.getOffset());
+		FileRef ref = ASTManager.getDocumentAST(textViewer.getDocument()).getLinks().getFileRef(region.getOffset());
+		// FileRef ref =
+		// DomManager.getDomManager(textViewer.getDocument()).getFileRef(region.getOffset());
 		if (ref != null)
 		{
 			return new IHyperlink[] { new InnerHyperLink(ref) };

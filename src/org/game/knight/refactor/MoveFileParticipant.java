@@ -20,7 +20,8 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
+import org.game.knight.ast.MyChange;
 
 public class MoveFileParticipant extends MoveParticipant
 {
@@ -78,8 +79,8 @@ public class MoveFileParticipant extends MoveParticipant
 		//确定文件变动
 		try
 		{
-			FileAstManager.Change[] changes=FileAstManager.moveResource((IResource) file, folder, fromFiles, pm);
-			for(FileAstManager.Change change:changes)
+			MyChange[] changes=ASTManager.moveResource((IResource) file, folder, fromFiles, pm);
+			for(MyChange change:changes)
 			{
 				if (!file_edits.containsKey(change.owner))
 				{

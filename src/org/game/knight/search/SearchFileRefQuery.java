@@ -10,25 +10,25 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
 
 public class SearchFileRefQuery implements ISearchQuery
 {
 	private IFile file;
 	private SearchResult result;
-	
+
 	public SearchFileRefQuery(IFile file)
 	{
-		this.file=file;
-		this.result=new SearchResult(this,file.getProjectRelativePath().toString(),file.getProject().getName());
+		this.file = file;
+		this.result = new SearchResult(this, file.getProjectRelativePath().toString(), file.getProject().getName());
 	}
-	
+
 	@Override
 	public IStatus run(IProgressMonitor monitor) throws OperationCanceledException
 	{
 		try
 		{
-			FileAstManager.searchFileRef(file, result, monitor);
+			ASTManager.searchFileRef(file, result, monitor);
 		}
 		catch (CoreException e)
 		{

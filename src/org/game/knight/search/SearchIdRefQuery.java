@@ -9,26 +9,26 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.IdDef;
 
 public class SearchIdRefQuery implements ISearchQuery
 {
 	private IdDef idDef;
 	private SearchResult result;
-	
+
 	public SearchIdRefQuery(IdDef idDef)
 	{
-		this.idDef=idDef;
-		this.result=new SearchResult(this,idDef.getText(),idDef.getFile().getProject().getName());
+		this.idDef = idDef;
+		this.result = new SearchResult(this, idDef.getText(), idDef.getFile().getProject().getName());
 	}
-	
+
 	@Override
 	public IStatus run(IProgressMonitor monitor) throws OperationCanceledException
 	{
 		try
 		{
-			FileAstManager.searchIdRef(idDef, result, monitor);
+			ASTManager.searchIdRef(idDef, result, monitor);
 		}
 		catch (CoreException e)
 		{
@@ -48,7 +48,7 @@ public class SearchIdRefQuery implements ISearchQuery
 	@Override
 	public String getLabel()
 	{
-		return "QUERY£º"+result.getLabel();
+		return "QUERY£º" + result.getLabel();
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.eclipse.swt.widgets.Display;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.FileRef;
 import org.game.knight.refactor.RenameFileWizard;
 
@@ -36,7 +36,7 @@ public class RenameFileAction extends Action
 
 		IFile owner = ref.getFile();
 
-		IFile file = FileAstManager.getSourceFile(owner.getProject(), ref.getTargetURL());
+		IFile file = ASTManager.getSourceFile(owner.getProject(), ref.getTargetURL());
 		if (file.exists())
 		{
 			RenameFileWizard refactoringWizard = new RenameFileWizard(file);

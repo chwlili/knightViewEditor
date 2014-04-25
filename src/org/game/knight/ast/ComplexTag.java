@@ -8,7 +8,7 @@ import org.game.knight.ast.AST.Token;
 public class ComplexTag extends Tag
 {
 	private ArrayList<Object> children;
-	private Hashtable<String, TagAttribute> attributeTable;
+	private Hashtable<String, TagAttribute> attributeTable=new Hashtable<String, TagAttribute>();
 
 	public ComplexTag(Token start, Token stop, Token name, ArrayList<TagAttribute> attributes, ArrayList<Object> children)
 	{

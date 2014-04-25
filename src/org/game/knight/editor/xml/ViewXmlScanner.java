@@ -9,7 +9,7 @@ import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 import org.game.knight.ast.AST;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
 
 public class ViewXmlScanner implements ITokenScanner
 {
@@ -123,6 +123,6 @@ public class ViewXmlScanner implements ITokenScanner
 	{
 		this.offset = offset;
 		this.last = null;
-		this.ast = FileAstManager.getFileSummay(DomManager.getFileByDocument(document)).getAST();
+		this.ast=ASTManager.getDocumentAST(document);
 	}
 }

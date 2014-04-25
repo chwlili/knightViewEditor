@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
+import org.game.knight.ast.ASTManager;
 
 public class ViewXmlProvider extends FileDocumentProvider
 {
@@ -14,7 +15,8 @@ public class ViewXmlProvider extends FileDocumentProvider
 		
 		IFileEditorInput input=(IFileEditorInput)element;
 		
-		DomManager.linkFile(document, input.getFile());
+		ASTManager.linkDocument(document, input.getFile());
+		
 //		if (document != null)
 //		{
 //			IDocumentPartitioner partitioner = new FastPartitioner(new XMLPartitionScanner(), new String[] { XMLPartitionScanner.XML_TAG, XMLPartitionScanner.XML_COMMENT });

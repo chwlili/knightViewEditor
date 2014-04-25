@@ -1,12 +1,19 @@
 package org.game.knight.ast;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.chw.xml.XmlBaseVisitor;
+import org.chw.xml.XmlLexer;
 import org.chw.xml.XmlParser;
 import org.chw.xml.XmlParser.AttributeContext;
 import org.chw.xml.XmlParser.AttributeValueContext;
@@ -19,25 +26,123 @@ import org.chw.xml.XmlParser.RootContext;
 import org.chw.xml.XmlParser.SingleNodeContext;
 import org.chw.xml.XmlParser.TextContext;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.content.IContentDescription;
+import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 
 public class AST
 {
 	private IFile file;
-	private Dom dom;
+	private IDocument document;
+	private ASTLinks fileRefs;
+	
+	private ArrayList<Token> tokens = new ArrayList<Token>();
+	private ArrayList<Object> trees=new ArrayList<Object>();
 
-	public AST(IFile file, RootContext root)
+	/**
+	 * 基于文档创建AST
+	 * @param document
+	 */
+	public AST(IDocument document)
 	{
-		build(root);
+		this.file=ASTManager.getDocumentFile(document);
+		this.document=document;
+		
+		XmlLexer lexer = new XmlLexer(new ANTLRInputStream(document.get()));
+		XmlParser parser = new XmlParser(new CommonTokenStream(lexer));
+		parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
+		
+		build(parser.root());
+		
+		this.document.addDocumentListener(new IDocumentListener()
+		{
+			@Override
+			public void documentChanged(DocumentEvent event)
+			{
+				//..
+			}
+			
+			@Override
+			public void documentAboutToBeChanged(DocumentEvent event)
+			{
+				//..
+			}
+		});
 	}
+	
+	/**
+	 * 基于文件创建AST
+	 * @param file
+	 * @throws CoreException
+	 * @throws IOException
+	 */
+	public AST(IFile file) throws CoreException, IOException
+	{
+		this.file=file;
+		
+		int bomLen = 0;
+		IContentDescription desc = file.getContentDescription();
+		if (desc != null)
+		{
+			byte[] bom = (byte[]) desc.getProperty(IContentDescription.BYTE_ORDER_MARK);
+			if (bom != null)
+			{
+				bomLen = bom.length;
+			}
+		}
 
+		InputStream stream = file.getContents();
+		stream.skip(bomLen);
+		InputStreamReader reader = new InputStreamReader(stream, file.getCharset());
+
+		XmlLexer lexer = new XmlLexer(new ANTLRInputStream(reader));
+		XmlParser parser = new XmlParser(new CommonTokenStream(lexer));
+		parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
+		
+		build(parser.root());
+	}
+	
+	/**
+	 * 获取相关文件
+	 * @return
+	 */
+	public IFile getFile()
+	{
+		return file;
+	}
+	
+	/**
+	 * 获取Token列表
+	 * @return
+	 */
 	public ArrayList<Token> getTokens()
 	{
-		return dom.getTokens();
+		return tokens;
 	}
 
+	/**
+	 * 获取链接列表
+	 * @return
+	 */
+	public ASTLinks getLinks()
+	{
+		return fileRefs;
+	}
+	
+	/**
+	 * 构建
+	 * @param root
+	 */
 	private void build(RootContext root)
 	{
-		dom = (Dom) root.accept(visitor);
+		tokens.clear();
+		trees.clear();
+		
+		root.accept(visitor);
+		
+		fileRefs=new ASTLinks(file,trees);
 	}
 
 	public static class Token
@@ -83,20 +188,19 @@ public class AST
 
 	private XmlBaseVisitor<Object> visitor = new XmlBaseVisitor<Object>()
 	{
-		private ArrayList<Token> tokens = new ArrayList<Token>();
 
 		@Override
 		public Object visitRoot(RootContext ctx)
 		{
-			ArrayList<Object> children = new ArrayList<Object>();
+			trees = new ArrayList<Object>();
 
 			List<ParseTree> childNodes = ctx.children;
 			for (ParseTree childNode : childNodes)
 			{
-				children.add(visit(childNode));
+				trees.add(visit(childNode));
 			}
 
-			return new Dom(file,tokens, children);
+			return null;
 		}
 
 		@Override

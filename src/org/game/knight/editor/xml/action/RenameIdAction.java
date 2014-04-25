@@ -1,8 +1,8 @@
 package org.game.knight.editor.xml.action;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
@@ -14,6 +14,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.ProcessorBasedRefactoring;
@@ -35,9 +36,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
-import org.game.knight.ast.FileAstManager;
+import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.IdDef;
-import org.game.knight.ast.IdRef;
+import org.game.knight.ast.MyChange;
 
 public class RenameIdAction extends Action
 {
@@ -68,49 +69,51 @@ public class RenameIdAction extends Action
 		{
 		}
 	}
-	
+
 	/**
 	 * 重命名ID向导
+	 * 
 	 * @author tt
-	 *
+	 * 
 	 */
 	private class RenameIDWizard extends RefactoringWizard
 	{
 		private IdDef idDef;
 		private RenameIdProcessor fProcessor;
-		
+
 		public RenameIDWizard(IdDef idDef)
 		{
 			super(new RenameIdRefactoring(new RenameIdProcessor(idDef)), DIALOG_BASED_USER_INTERFACE);
-			
-			this.idDef=idDef;
-			fProcessor=(RenameIdProcessor) ((RenameIdRefactoring)getRefactoring()).getProcessor();
+
+			this.idDef = idDef;
+			fProcessor = (RenameIdProcessor) ((RenameIdRefactoring) getRefactoring()).getProcessor();
 		}
 
 		@Override
 		protected void addUserInputPages()
 		{
-			addPage(new RenameIDWizardPage(fProcessor,"重命名ID",idDef.getText()));
+			addPage(new RenameIDWizardPage(fProcessor, "重命名ID", idDef.getText()));
 		}
 	}
 
 	/**
 	 * 重命名ID页面
+	 * 
 	 * @author tt
-	 *
+	 * 
 	 */
 	private class RenameIDWizardPage extends UserInputWizardPage
 	{
 		private final RenameIdProcessor fRefactoringProcessor;
 		private Text fNameField;
 		private String id;
-		
-		protected RenameIDWizardPage(RenameIdProcessor processor,String name,String id)
+
+		protected RenameIDWizardPage(RenameIdProcessor processor, String name, String id)
 		{
 			super(name);
-			
-			this.id=id;
-			fRefactoringProcessor=processor;
+
+			this.id = id;
+			fRefactoringProcessor = processor;
 		}
 
 		@Override
@@ -126,7 +129,7 @@ public class RenameIdAction extends Action
 			label.setLayoutData(new GridData());
 
 			fNameField = new Text(composite, SWT.BORDER);
-			fNameField.setText(id!=null ? id:"");
+			fNameField.setText(id != null ? id : "");
 			fNameField.setFont(composite.getFont());
 			fNameField.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 			fNameField.addModifyListener(new ModifyListener()
@@ -141,11 +144,11 @@ public class RenameIdAction extends Action
 			setPageComplete(false);
 			setControl(composite);
 		}
-		
+
 		private void validatePage()
 		{
-			String text=fNameField.getText();
-			if(text!=null && !text.isEmpty())
+			String text = fNameField.getText();
+			if (text != null && !text.isEmpty())
 			{
 				fRefactoringProcessor.setName(text);
 				setPageComplete(true);
@@ -159,53 +162,55 @@ public class RenameIdAction extends Action
 
 	/**
 	 * 重构工具
+	 * 
 	 * @author tt
-	 *
+	 * 
 	 */
 	private class RenameIdRefactoring extends ProcessorBasedRefactoring
 	{
 		private RenameIdProcessor fProcessor;
-		
+
 		public RenameIdRefactoring(RenameIdProcessor processor)
 		{
 			super(processor);
 			Assert.isNotNull(processor);
-			fProcessor= processor;
+			fProcessor = processor;
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
-		public RefactoringProcessor getProcessor() 
+		public RefactoringProcessor getProcessor()
 		{
 			return fProcessor;
 		}
 	}
-	
+
 	/**
 	 * 重构处理器
+	 * 
 	 * @author tt
-	 *
+	 * 
 	 */
 	private class RenameIdProcessor extends RenameProcessor
 	{
 		private IdDef idDef;
 		private String name;
-		
+
 		public RenameIdProcessor(IdDef idDef)
 		{
-			this.idDef=idDef;
+			this.idDef = idDef;
 		}
-		
+
 		public void setName(String text)
 		{
-			this.name=text;
+			this.name = text;
 		}
-		
+
 		@Override
 		public Object[] getElements()
 		{
-			return new Object[]{idDef};
+			return new Object[] { idDef };
 		}
 
 		@Override
@@ -223,7 +228,7 @@ public class RenameIdAction extends Action
 		@Override
 		public boolean isApplicable() throws CoreException
 		{
-			if(idDef==null)
+			if (idDef == null)
 			{
 				return false;
 			}
@@ -245,35 +250,41 @@ public class RenameIdAction extends Action
 		@Override
 		public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException
 		{
-			CompositeChange root=new CompositeChange("重构文件引用");
+			Hashtable<IFile, ArrayList<ReplaceEdit>> file_edits = new Hashtable<IFile, ArrayList<ReplaceEdit>>();
+
+			// 确定文件变动
 			try
 			{
-				Hashtable<IFile, TextFileChange> file_changes=new Hashtable<IFile, TextFileChange>();
-				
-				List<IdRef> refs=FileAstManager.getIdRefs(idDef);
-				if(refs!=null)
+				MyChange[] changes = ASTManager.renameID(idDef, name, pm);
+				for (MyChange change : changes)
 				{
-					for(IdRef ref:refs)
+					if (!file_edits.containsKey(change.owner))
 					{
-						TextFileChange change=null;
-						if(!file_changes.containsKey(ref.getFile()))
-						{
-							change = new TextFileChange("",ref.getFile());
-							change.setEdit(new MultiTextEdit());
-							root.add(change);
-							
-							file_changes.put(ref.getFile(), change);
-						}
-						
-						change=file_changes.get(ref.getFile());
-						change.addEdit(new ReplaceEdit(ref.getOffset(),ref.getLength(),name));
+						file_edits.put(change.owner, new ArrayList<ReplaceEdit>());
 					}
+
+					file_edits.get(change.owner).add(new ReplaceEdit(change.offset, change.length, change.text));
 				}
 			}
-			catch (IOException e)
+			catch (IOException e1)
 			{
-				e.printStackTrace();
+				e1.printStackTrace();
 			}
+
+			// 合并文件变动
+			CompositeChange root = new CompositeChange("更新文件引用");
+			for (IFile file : file_edits.keySet())
+			{
+				TextChange fileEdit = new TextFileChange("", file);
+				fileEdit.setEdit(new MultiTextEdit());
+				root.add(fileEdit);
+
+				for (ReplaceEdit edit : file_edits.get(file))
+				{
+					fileEdit.addEdit(edit);
+				}
+			}
+
 			return root;
 		}
 
