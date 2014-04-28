@@ -5,66 +5,52 @@ import java.util.Hashtable;
 
 import org.game.knight.ast.AST.Token;
 
-public class Tag
+public class SingleTag extends AbsTag
 {
-	private Token first;
-	private Token last;
 	private Token name;
-	private ArrayList<TagAttribute> attributes;
-	private Hashtable<String, TagAttribute> attributeTable;
+	private ArrayList<Attribute> attributes;
+	private Hashtable<String, Attribute> attributeTable;
 
-	public Tag(Token first, Token last, Token name, ArrayList<TagAttribute> attributes)
+	public SingleTag(int type, Token first, Token last, Token name, ArrayList<Attribute> attributes)
 	{
-		this.first = first;
-		this.last = last;
+		super(type, first, last);
+
 		this.name = name;
 		this.attributes = attributes;
-		this.attributeTable = new Hashtable<String, TagAttribute>();
-		
+		this.attributeTable = new Hashtable<String, Attribute>();
+
 		if (attributes != null)
 		{
-			for (TagAttribute attribute : attributes)
+			for (Attribute attribute : attributes)
 			{
 				attributeTable.put(attribute.getNameToken().text, attribute);
 			}
 		}
 	}
 
-	public Token getFirstToken()
-	{
-		return first;
-	}
-
-	public Token getLastToken()
-	{
-		return last;
-	}
-
-	public Token getNameToken()
-	{
-		return name;
-	}
-	
 	/**
 	 * 获取标记名称
+	 * 
 	 * @return
 	 */
 	public String getName()
 	{
 		return name.text;
 	}
-	
+
 	/**
 	 * 获取属性列表
+	 * 
 	 * @return
 	 */
-	public ArrayList<TagAttribute> getAttributes()
+	public ArrayList<Attribute> getAttributes()
 	{
 		return attributes;
 	}
-	
+
 	/**
 	 * 是否是指定的属性
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -72,29 +58,31 @@ public class Tag
 	{
 		return attributeTable.containsKey(name);
 	}
-	
+
 	/**
 	 * 获取属性
+	 * 
 	 * @param name
 	 * @return
 	 */
-	public TagAttribute getAttribute(String name)
+	public Attribute getAttribute(String name)
 	{
-		if(attributeTable.containsKey(name))
+		if (attributeTable.containsKey(name))
 		{
 			return attributeTable.get(name);
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 获取属性值
+	 * 
 	 * @param name
 	 * @return
 	 */
 	public String getAttributeValue(String name)
 	{
-		if(attributeTable.containsKey(name))
+		if (attributeTable.containsKey(name))
 		{
 			return attributeTable.get(name).getValue();
 		}

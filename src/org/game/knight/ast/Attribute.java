@@ -1,13 +1,13 @@
 package org.game.knight.ast;
 
-public class TagAttribute
+public class Attribute
 {
 	private AST.Token start;
 	private AST.Token stop;
 	private AST.Token name;
 	private AST.Token value;
 	
-	public TagAttribute(AST.Token start,AST.Token stop,AST.Token name,AST.Token value)
+	public Attribute(AST.Token start,AST.Token stop,AST.Token name,AST.Token value)
 	{
 		this.start=start;
 		this.stop=stop;

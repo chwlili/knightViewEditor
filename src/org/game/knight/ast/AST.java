@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -37,51 +38,53 @@ public class AST
 	private IFile file;
 	private IDocument document;
 	private ASTLinks fileRefs;
-	
+
 	private ArrayList<Token> tokens = new ArrayList<Token>();
-	private ArrayList<Object> trees=new ArrayList<Object>();
+	private ArrayList<Object> trees = new ArrayList<Object>();
 
 	/**
 	 * 基于文档创建AST
+	 * 
 	 * @param document
 	 */
 	public AST(IDocument document)
 	{
-		this.file=ASTManager.getDocumentFile(document);
-		this.document=document;
-		
+		this.file = ASTManager.getDocumentFile(document);
+		this.document = document;
+
 		XmlLexer lexer = new XmlLexer(new ANTLRInputStream(document.get()));
 		XmlParser parser = new XmlParser(new CommonTokenStream(lexer));
 		parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
-		
+
 		build(parser.root());
-		
+
 		this.document.addDocumentListener(new IDocumentListener()
 		{
 			@Override
 			public void documentChanged(DocumentEvent event)
 			{
-				//..
+				// ..
 			}
-			
+
 			@Override
 			public void documentAboutToBeChanged(DocumentEvent event)
 			{
-				//..
+				// ..
 			}
 		});
 	}
-	
+
 	/**
 	 * 基于文件创建AST
+	 * 
 	 * @param file
 	 * @throws CoreException
 	 * @throws IOException
 	 */
 	public AST(IFile file) throws CoreException, IOException
 	{
-		this.file=file;
-		
+		this.file = file;
+
 		int bomLen = 0;
 		IContentDescription desc = file.getContentDescription();
 		if (desc != null)
@@ -100,21 +103,23 @@ public class AST
 		XmlLexer lexer = new XmlLexer(new ANTLRInputStream(reader));
 		XmlParser parser = new XmlParser(new CommonTokenStream(lexer));
 		parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
-		
+
 		build(parser.root());
 	}
-	
+
 	/**
 	 * 获取相关文件
+	 * 
 	 * @return
 	 */
 	public IFile getFile()
 	{
 		return file;
 	}
-	
+
 	/**
 	 * 获取Token列表
+	 * 
 	 * @return
 	 */
 	public ArrayList<Token> getTokens()
@@ -122,27 +127,34 @@ public class AST
 		return tokens;
 	}
 
+	public ArrayList<Object> getTrees()
+	{
+		return trees;
+	}
+
 	/**
 	 * 获取链接列表
+	 * 
 	 * @return
 	 */
 	public ASTLinks getLinks()
 	{
 		return fileRefs;
 	}
-	
+
 	/**
 	 * 构建
+	 * 
 	 * @param root
 	 */
 	private void build(RootContext root)
 	{
 		tokens.clear();
 		trees.clear();
-		
+
 		root.accept(visitor);
-		
-		fileRefs=new ASTLinks(file,trees);
+
+		fileRefs = new ASTLinks(file, trees);
 	}
 
 	public static class Token
@@ -188,17 +200,34 @@ public class AST
 
 	private XmlBaseVisitor<Object> visitor = new XmlBaseVisitor<Object>()
 	{
+		private int id = 1;
+		private int DEFAULT = id++;
+		private int DOCUMENT = id++;
+		private int ROOT = id++;
+		private int DEPENDS = id++;
+		private int BITMAPS = id++;
+		private int BITMAP_RENDERS = id++;
+		private int SWFS = id++;
+		private int FILTERS = id++;
+		private int FORMATS = id++;
+		private int TEXTS = id++;
+		private int CONTROLS = id++;
+
+		private Stack<Integer> stacks = new Stack<Integer>();
 
 		@Override
 		public Object visitRoot(RootContext ctx)
 		{
-			trees = new ArrayList<Object>();
+			stacks.push(DOCUMENT);
 
+			trees = new ArrayList<Object>();
 			List<ParseTree> childNodes = ctx.children;
 			for (ParseTree childNode : childNodes)
 			{
 				trees.add(visit(childNode));
 			}
+
+			stacks.pop();
 
 			return null;
 		}
@@ -259,7 +288,8 @@ public class AST
 			Token first = null;
 			Token last = null;
 			Token name = null;
-			ArrayList<TagAttribute> attributes = new ArrayList<TagAttribute>();
+			int tagType = getType(ctx.tagName.getText());
+			ArrayList<Attribute> attributes = new ArrayList<Attribute>();
 
 			List<ParseTree> childNodes = ctx.children;
 			for (ParseTree childNode : childNodes)
@@ -304,20 +334,142 @@ public class AST
 				}
 				else if (childNode instanceof AttributeContext)
 				{
-					attributes.add((TagAttribute) visitAttribute((AttributeContext) childNode));
+					attributes.add((Attribute) visitAttribute((AttributeContext) childNode));
 				}
 			}
 
-			return new Tag(first, last, name, attributes);
+			return new SingleTag(tagType, first, last, name, attributes);
+		}
+
+		private int getType(String tagName)
+		{
+			int type = stacks.lastElement();
+			if (type == ROOT && tagName.equals("depends"))
+			{
+				return AbsTag.DependList;
+			}
+			if (type == ROOT && tagName.equals("bitmaps"))
+			{
+				return AbsTag.BitmapList;
+			}
+			if (type == ROOT && tagName.equals("bitmapReaders"))
+			{
+				return AbsTag.BitmapRendererList;
+			}
+			if (type == ROOT && tagName.equals("swfs"))
+			{
+				return AbsTag.SwfList;
+			}
+			if (type == ROOT && tagName.equals("filters"))
+			{
+				return AbsTag.FilterList;
+			}
+			if (type == ROOT && tagName.equals("formats"))
+			{
+				return AbsTag.FormatList;
+			}
+			if (type == ROOT && tagName.equals("texts"))
+			{
+				return AbsTag.TextList;
+			}
+			if (type == ROOT && tagName.equals("controls"))
+			{
+				return AbsTag.ControlList;
+			}
+			if (type == DEPENDS && tagName.equals("depend"))
+			{
+				return AbsTag.Depend;
+			}
+			else if (type == BITMAPS && tagName.equals("bitmap"))
+			{
+				return AbsTag.Bitmap;
+			}
+			else if (type == BITMAP_RENDERS && tagName.equals("bitmapReader"))
+			{
+				return AbsTag.BitmapRenderer;
+			}
+			else if (type == SWFS && tagName.equals("swf"))
+			{
+				return AbsTag.Swf;
+			}
+			else if (type == FILTERS && tagName.equals("filter"))
+			{
+				return AbsTag.Filter;
+			}
+			else if (type == FORMATS && tagName.equals("format"))
+			{
+				return AbsTag.Format;
+			}
+			else if (type == TEXTS && tagName.equals("text"))
+			{
+				return AbsTag.Text;
+			}
+			else if (type == CONTROLS)
+			{
+				return AbsTag.Control;
+			}
+			return 0;
 		}
 
 		@Override
 		public Object visitComplexNode(ComplexNodeContext ctx)
 		{
+			int tagType = getType(ctx.tagName.getText());
+			
+			int stack = stacks.lastElement();
+			if (stack == DOCUMENT)
+			{
+				stacks.push(ROOT);
+			}
+			else if (stack == ROOT)
+			{
+				String partName = ctx.tagName.getText();
+				if (partName.equals("depends"))
+				{
+					stacks.push(DEPENDS);
+				}
+				else if (partName.equals("bitmaps"))
+				{
+					stacks.push(BITMAPS);
+				}
+				else if (partName.equals("bitmapReaders"))
+				{
+					stacks.push(BITMAP_RENDERS);
+				}
+				else if (partName.equals("swfs"))
+				{
+					stacks.push(SWFS);
+				}
+				else if (partName.equals("filters"))
+				{
+					stacks.push(FILTERS);
+				}
+				else if (partName.equals("formats"))
+				{
+					stacks.push(FORMATS);
+				}
+				else if (partName.equals("texts"))
+				{
+					stacks.push(TEXTS);
+				}
+				else if (partName.equals("controls"))
+				{
+					stacks.push(CONTROLS);
+				}
+				else
+				{
+					stacks.push(DEFAULT);
+				}
+			}
+			else
+			{
+				stacks.push(DEFAULT);
+			}
+
 			Token first = null;
 			Token last = null;
 			Token name = null;
-			ArrayList<TagAttribute> attributes = new ArrayList<TagAttribute>();
+			ArrayList<Attribute> attributes = new ArrayList<Attribute>();
 			ArrayList<Object> children = new ArrayList<Object>();
 
 			List<ParseTree> childNodes = ctx.children;
@@ -375,7 +527,7 @@ public class AST
 				}
 				else if (childNode instanceof AttributeContext)
 				{
-					attributes.add((TagAttribute) visitAttribute((AttributeContext) childNode));
+					attributes.add((Attribute) visitAttribute((AttributeContext) childNode));
 				}
 				else
 				{
@@ -383,7 +535,9 @@ public class AST
 				}
 			}
 
-			return new ComplexTag(first, last, name, attributes, children);
+			stacks.pop();
+
+			return new ComplexTag(tagType, first, last, name, attributes, children);
 		}
 
 		@Override
@@ -449,7 +603,7 @@ public class AST
 				}
 			}
 
-			return new TagAttribute(first, last, name, value);
+			return new Attribute(first, last, name, value);
 		}
 
 		@Override

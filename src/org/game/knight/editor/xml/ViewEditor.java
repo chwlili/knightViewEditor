@@ -1,5 +1,8 @@
 package org.game.knight.editor.xml;
 
+import org.eclipse.gef.DefaultEditDomain;
+import org.eclipse.gef.GraphicalViewer;
+import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
@@ -11,6 +14,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.game.knight.PluginResource;
 import org.game.knight.ast.AST;
 import org.game.knight.ast.ASTManager;
@@ -22,6 +26,7 @@ import org.game.knight.editor.xml.action.LookFileAction;
 import org.game.knight.editor.xml.action.LookIdAction;
 import org.game.knight.editor.xml.action.RenameFileAction;
 import org.game.knight.editor.xml.action.RenameIdAction;
+import org.game.knight.editor.xml.design.GefPartFactory;
 import org.game.knight.refactor.MoveFileAction;
 import org.game.knight.search.SearchFileRefAction;
 import org.game.knight.search.SearchIdRefAction;
@@ -71,6 +76,10 @@ public class ViewEditor extends TextEditor
 
 		Composite designBox = new Composite(folder, SWT.NONE);
 		designBox.setLayout(new FillLayout());
+		GraphicalViewer viewer = new ScrollingGraphicalViewer();
+		viewer.createControl(designBox);
+		viewer.setEditDomain(new DefaultEditDomain(this));
+		viewer.setEditPartFactory(new GefPartFactory());
 
 		Composite previewBox = new Composite(folder, SWT.None);
 		previewBox.setLayout(new FillLayout());
@@ -94,6 +103,17 @@ public class ViewEditor extends TextEditor
 		super.createPartControl(sourceBox);
 
 		folder.setSelection(0);
+	}
+
+	@Override
+	protected void handleCursorPositionChanged()
+	{
+		super.handleCursorPositionChanged();
+
+		if (outline != null)
+		{
+			outline.handleCursorPositionChanged(getSourceViewer().getTextWidget().getSelection().x);
+		}
 	}
 
 	@Override
@@ -204,5 +224,22 @@ public class ViewEditor extends TextEditor
 		{
 			menu.appendToGroup("find", new SearchFileRefAction(fileRef));
 		}
+	}
+
+	private ViewEditorOutline outline;
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Object getAdapter(Class adapter)
+	{
+		if (adapter == IContentOutlinePage.class)
+		{
+			if (outline == null)
+			{
+				outline = new ViewEditorOutline(this, getSourceViewer().getDocument());
+			}
+			return outline;
+		}
+		return super.getAdapter(adapter);
 	}
 }

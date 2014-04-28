@@ -260,19 +260,19 @@ public class ASTLinks
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof Tag))
+			if (!(child instanceof SingleTag))
 			{
 				continue;
 			}
 
-			Tag curr = (Tag) child;
+			SingleTag curr = (SingleTag) child;
 			if (!curr.getName().equals("depend"))
 			{
 				continue;
 			}
 
 			// 取出src属性
-			TagAttribute srcAttribute = curr.getAttribute("src");
+			Attribute srcAttribute = curr.getAttribute("src");
 			if (srcAttribute == null)
 			{
 				System.err.println("depend节点没有src属性!");
@@ -309,12 +309,12 @@ public class ASTLinks
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof Tag))
+			if (!(child instanceof SingleTag))
 			{
 				continue;
 			}
 
-			Tag curr = (Tag) child;
+			SingleTag curr = (SingleTag) child;
 			if (!curr.getName().equals("bitmap"))
 			{
 				continue;
@@ -322,7 +322,7 @@ public class ASTLinks
 
 			// 取出ID属性
 			String idValue = null;
-			TagAttribute idAttribute = curr.getAttribute("id");
+			Attribute idAttribute = curr.getAttribute("id");
 			if (idAttribute != null)
 			{
 				idValue = idAttribute.getValue();
@@ -340,7 +340,7 @@ public class ASTLinks
 
 			// 取出dependId属性
 			String dependValue = null;
-			TagAttribute dependAttribute = curr.getAttribute("dependId");
+			Attribute dependAttribute = curr.getAttribute("dependId");
 			if (dependAttribute != null)
 			{
 				dependValue = dependAttribute.getValue();
@@ -348,7 +348,7 @@ public class ASTLinks
 
 			// 取出src属性
 			String srcValue = null;
-			TagAttribute srcAttribute = curr.getAttribute("src");
+			Attribute srcAttribute = curr.getAttribute("src");
 			if (srcAttribute != null)
 			{
 				srcValue = srcAttribute.getValue();
@@ -435,12 +435,12 @@ public class ASTLinks
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof Tag))
+			if (!(child instanceof SingleTag))
 			{
 				continue;
 			}
 
-			Tag curr = (Tag) child;
+			SingleTag curr = (SingleTag) child;
 			if (!curr.getName().equals("bitmapReader"))
 			{
 				continue;
@@ -448,7 +448,7 @@ public class ASTLinks
 
 			// 取出id属性
 			String idValue = null;
-			TagAttribute idAttribute = curr.getAttribute("id");
+			Attribute idAttribute = curr.getAttribute("id");
 			if (idAttribute != null)
 			{
 				idValue = idAttribute.getValue();
@@ -466,7 +466,7 @@ public class ASTLinks
 
 			// 取出bmp属性
 			String bmpValue = null;
-			TagAttribute bmpAttribute = curr.getAttribute("bmp");
+			Attribute bmpAttribute = curr.getAttribute("bmp");
 			if (bmpAttribute != null)
 			{
 				bmpValue = bmpAttribute.getValue();
@@ -505,12 +505,12 @@ public class ASTLinks
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof Tag))
+			if (!(child instanceof SingleTag))
 			{
 				continue;
 			}
 
-			Tag curr = (Tag) child;
+			SingleTag curr = (SingleTag) child;
 			if (!curr.getName().equals("swf"))
 			{
 				continue;
@@ -518,7 +518,7 @@ public class ASTLinks
 
 			// 取出id属性
 			String idValue = null;
-			TagAttribute idAttribute = curr.getAttribute("id");
+			Attribute idAttribute = curr.getAttribute("id");
 			if (idAttribute != null)
 			{
 				idValue = idAttribute.getValue();
@@ -536,7 +536,7 @@ public class ASTLinks
 
 			// 取出src属性
 			String srcValue = null;
-			TagAttribute srcAttribute = curr.getAttribute("src");
+			Attribute srcAttribute = curr.getAttribute("src");
 			if (srcAttribute != null)
 			{
 				srcValue = srcAttribute.getValue();
@@ -587,12 +587,12 @@ public class ASTLinks
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof Tag))
+			if (!(child instanceof SingleTag))
 			{
 				continue;
 			}
 
-			Tag curr = (Tag) child;
+			SingleTag curr = (SingleTag) child;
 			if (!curr.getName().equals("filter"))
 			{
 				continue;
@@ -600,7 +600,7 @@ public class ASTLinks
 
 			// 取出id属性
 			String idValue = null;
-			TagAttribute idAttribute = curr.getAttribute("id");
+			Attribute idAttribute = curr.getAttribute("id");
 			if (idAttribute != null)
 			{
 				idValue = idAttribute.getValue();
@@ -631,12 +631,12 @@ public class ASTLinks
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof Tag))
+			if (!(child instanceof SingleTag))
 			{
 				continue;
 			}
 
-			Tag curr = (Tag) child;
+			SingleTag curr = (SingleTag) child;
 			if (!curr.getName().equals("format"))
 			{
 				continue;
@@ -644,7 +644,7 @@ public class ASTLinks
 
 			// 取出id属性
 			String idValue = null;
-			TagAttribute idAttribute = curr.getAttribute("id");
+			Attribute idAttribute = curr.getAttribute("id");
 			if (idAttribute != null)
 			{
 				idValue = idAttribute.getValue();
@@ -662,7 +662,7 @@ public class ASTLinks
 
 			// 取出filter属性
 			String filterValue = null;
-			TagAttribute filterAttribute = curr.getAttribute("filter");
+			Attribute filterAttribute = curr.getAttribute("filter");
 			if (filterAttribute != null)
 			{
 				filterValue = filterAttribute.getValue();
@@ -697,12 +697,12 @@ public class ASTLinks
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof Tag))
+			if (!(child instanceof SingleTag))
 			{
 				continue;
 			}
 
-			Tag curr = (Tag) child;
+			SingleTag curr = (SingleTag) child;
 			if (!curr.getName().equals("text"))
 			{
 				continue;
@@ -710,7 +710,7 @@ public class ASTLinks
 
 			// 取出id属性
 			String idValue = null;
-			TagAttribute idAttribute = curr.getAttribute("id");
+			Attribute idAttribute = curr.getAttribute("id");
 			if (idAttribute != null)
 			{
 				idValue = idAttribute.getValue();
@@ -741,16 +741,16 @@ public class ASTLinks
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof Tag))
+			if (!(child instanceof SingleTag))
 			{
 				continue;
 			}
 
-			Tag curr = (Tag) child;
+			SingleTag curr = (SingleTag) child;
 
 			// 取出id属性
 			String idValue = null;
-			TagAttribute idAttribute = curr.getAttribute("id");
+			Attribute idAttribute = curr.getAttribute("id");
 			if (idAttribute != null)
 			{
 				idValue = idAttribute.getValue();
@@ -779,9 +779,9 @@ public class ASTLinks
 	}
 
 	// 查找ID引用
-	private void findIdRef(Tag tag)
+	private void findIdRef(SingleTag tag)
 	{
-		for (TagAttribute attribute : tag.getAttributes())
+		for (Attribute attribute : tag.getAttributes())
 		{
 			String tagName = tag.getName();
 			String attName = attribute.getName();
@@ -797,9 +797,9 @@ public class ASTLinks
 			ComplexTag box = (ComplexTag) tag;
 			for (Object child : box.getChildren())
 			{
-				if (child instanceof Tag)
+				if (child instanceof SingleTag)
 				{
-					findIdRef((Tag)child);
+					findIdRef((SingleTag)child);
 				}
 			}
 		}

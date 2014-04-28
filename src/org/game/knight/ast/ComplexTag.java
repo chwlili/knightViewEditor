@@ -5,26 +5,28 @@ import java.util.Hashtable;
 
 import org.game.knight.ast.AST.Token;
 
-public class ComplexTag extends Tag
+public class ComplexTag extends SingleTag
 {
 	private ArrayList<Object> children;
-	private Hashtable<String, TagAttribute> attributeTable=new Hashtable<String, TagAttribute>();
+	private Hashtable<String, Attribute> attributeTable = new Hashtable<String, Attribute>();
 
-	public ComplexTag(Token start, Token stop, Token name, ArrayList<TagAttribute> attributes, ArrayList<Object> children)
+	public ComplexTag(int type, Token start, Token stop, Token name, ArrayList<Attribute> attributes, ArrayList<Object> children)
 	{
-		super(start, stop, name, attributes);
-		
+		super(type, start, stop, name, attributes);
+
 		this.children = children;
 		if (attributes != null)
 		{
-			for (TagAttribute attribute : attributes)
+			for (Attribute attribute : attributes)
 			{
 				attributeTable.put(attribute.getNameToken().text, attribute);
 			}
 		}
 	}
+
 	/**
 	 * 获取子级列表
+	 * 
 	 * @return
 	 */
 	public ArrayList<Object> getChildren()
