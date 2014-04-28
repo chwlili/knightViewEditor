@@ -2,6 +2,7 @@ package org.game.knight.editor.xml;
 
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
+import org.eclipse.gef.editparts.FreeformGraphicalRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
@@ -18,6 +19,7 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.game.knight.PluginResource;
 import org.game.knight.ast.AST;
 import org.game.knight.ast.ASTManager;
+import org.game.knight.ast.AbsTag;
 import org.game.knight.ast.FileRef;
 import org.game.knight.ast.IdDef;
 import org.game.knight.ast.IdRef;
@@ -36,6 +38,8 @@ public class ViewEditor extends TextEditor
 	public static final String ID = "org.game.editors.XML";
 
 	private CTabFolder folder;
+	private GraphicalViewer viewer;
+	private AbsTag currentTag;
 
 	public ViewEditor()
 	{
@@ -61,6 +65,24 @@ public class ViewEditor extends TextEditor
 
 		folder.setSelection(0);
 	}
+	
+	public void selectTag(AbsTag tag)
+	{
+		if(folder.getSelectionIndex()==0)
+		{
+			selectRange(tag.getOffset(), tag.getLength());
+		}
+	}
+	
+	public void editTag(AbsTag tag)
+	{
+		if(folder.getSelectionIndex()==0)
+		{
+			getSourceViewer().setSelectedRange(getSourceViewer().getSelectedRange().x, 0);
+		}
+		currentTag=tag;
+		folder.setSelection(1);
+	}
 
 	@Override
 	public void createPartControl(Composite parent)
@@ -76,9 +98,10 @@ public class ViewEditor extends TextEditor
 
 		Composite designBox = new Composite(folder, SWT.NONE);
 		designBox.setLayout(new FillLayout());
-		GraphicalViewer viewer = new ScrollingGraphicalViewer();
+		viewer = new ScrollingGraphicalViewer();
 		viewer.createControl(designBox);
 		viewer.setEditDomain(new DefaultEditDomain(this));
+		viewer.setRootEditPart(new FreeformGraphicalRootEditPart());
 		viewer.setEditPartFactory(new GefPartFactory());
 
 		Composite previewBox = new Composite(folder, SWT.None);
@@ -110,7 +133,7 @@ public class ViewEditor extends TextEditor
 	{
 		super.handleCursorPositionChanged();
 
-		if (outline != null)
+		if (outline != null && folder.getSelectionIndex()==0)
 		{
 			outline.handleCursorPositionChanged(getSourceViewer().getTextWidget().getSelection().x);
 		}

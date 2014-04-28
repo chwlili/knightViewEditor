@@ -13,6 +13,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -33,6 +34,8 @@ public class ViewEditorOutline implements IContentOutlinePage
 {
 	private ViewEditor editor;
 	private IDocument document;
+	
+	private AbsTag editingTag;
 
 	private TreeViewer tree;
 
@@ -40,95 +43,6 @@ public class ViewEditorOutline implements IContentOutlinePage
 
 	private static boolean linked = true;
 
-	public ViewEditorOutline(ViewEditor editor, IDocument document)
-	{
-		this.editor = editor;
-		this.document = document;
-	}
-
-	@Override
-	public void createControl(Composite parent)
-	{
-		tree = new TreeViewer(parent);
-		tree.setLabelProvider(new TreeLabelProvider());
-		tree.setContentProvider(new TreeContentProvider());
-		tree.addDoubleClickListener(new IDoubleClickListener()
-		{
-			@Override
-			public void doubleClick(DoubleClickEvent event)
-			{
-				Object obj = event.getSelection();
-				if (obj instanceof IStructuredSelection)
-				{
-					IStructuredSelection select = (IStructuredSelection) obj;
-					Object item = select.getFirstElement();
-					if (item instanceof SingleTag)
-					{
-						SingleTag tag = (SingleTag) item;
-						editor.selectRange(tag.getOffset(), tag.getLength());
-						editor.setFocus();
-					}
-				}
-			}
-		});
-
-		tree.setInput(ASTManager.getDocumentAST(document));
-	}
-
-	public void handleCursorPositionChanged(int offset)
-	{
-		this.offset = offset;
-		if (!linked)
-		{
-			return;
-		}
-
-		ArrayList<Object> treeSelection = new ArrayList<Object>();
-
-		ArrayList<Object> nodes = ASTManager.getDocumentAST(document).getTrees();
-		for (int i = 0; i < nodes.size(); i++)
-		{
-			Object node = nodes.get(i);
-			if (node instanceof AbsTag)
-			{
-				AbsTag tag = (AbsTag) node;
-				if (tag.getOffset() <= offset && offset <= tag.getOffset() + tag.getLength() - 1)
-				{
-					treeSelection.add(tag);
-
-					if (tag instanceof ComplexTag)
-					{
-						nodes = ((ComplexTag) tag).getChildren();
-						i = -1;
-					}
-					else
-					{
-						break;
-					}
-				}
-			}
-		}
-
-		if (treeSelection.size() > 0)
-		{
-			while (treeSelection.size() > 1)
-			{
-				tree.expandToLevel(treeSelection.remove(0), 1);
-			}
-			tree.setSelection(new StructuredSelection(treeSelection.remove(0)));
-		}
-	}
-
-	@Override
-	public void dispose()
-	{
-	}
-
-	@Override
-	public Control getControl()
-	{
-		return tree.getControl();
-	}
 
 	private Action collapseAction = new Action()
 	{
@@ -178,6 +92,82 @@ public class ViewEditorOutline implements IContentOutlinePage
 			handleCursorPositionChanged(offset);
 		}
 	};
+	
+	private ISelectionChangedListener treeSelectionListener=new ISelectionChangedListener()
+	{
+		@Override
+		public void selectionChanged(SelectionChangedEvent event)
+		{
+			Object obj = event.getSelection();
+			if (obj instanceof IStructuredSelection)
+			{
+				IStructuredSelection select = (IStructuredSelection) obj;
+				Object item = select.getFirstElement();
+				if (item instanceof AbsTag)
+				{
+					editor.selectTag((AbsTag)item);
+					editor.setFocus();
+				}
+			}
+		}
+	};
+	
+	private IDoubleClickListener treeDoubleClickListener=new IDoubleClickListener()
+	{
+		@Override
+		public void doubleClick(DoubleClickEvent event)
+		{
+			Object obj = event.getSelection();
+			if (obj instanceof IStructuredSelection)
+			{
+				IStructuredSelection select = (IStructuredSelection) obj;
+				Object item = select.getFirstElement();
+				if (item instanceof AbsTag)
+				{
+					AbsTag tag=(AbsTag)item;
+					if(tag.isItem())
+					{
+						if(editingTag!=tag)
+						{
+							editingTag=tag;
+							tree.refresh();
+							
+							editor.editTag(tag);
+							editor.setFocus();
+						}
+					}
+				}
+			}
+		}
+	};
+
+	public ViewEditorOutline(ViewEditor editor, IDocument document)
+	{
+		this.editor = editor;
+		this.document = document;
+	}
+
+	@Override
+	public void createControl(Composite parent)
+	{
+		tree = new TreeViewer(parent);
+		tree.setLabelProvider(new TreeLabelProvider());
+		tree.setContentProvider(new TreeContentProvider());
+		tree.addSelectionChangedListener(treeSelectionListener);
+		tree.addDoubleClickListener(treeDoubleClickListener);
+		tree.setInput(ASTManager.getDocumentAST(document));
+	}
+
+	@Override
+	public void dispose()
+	{
+	}
+
+	@Override
+	public Control getControl()
+	{
+		return tree.getControl();
+	}
 
 	@Override
 	public void setActionBars(IActionBars actionBars)
@@ -218,7 +208,55 @@ public class ViewEditorOutline implements IContentOutlinePage
 
 	}
 
-	private static class TreeLabelProvider implements ILabelProvider
+	public void handleCursorPositionChanged(int offset)
+	{
+		tree.removeSelectionChangedListener(treeSelectionListener);
+		
+		this.offset = offset;
+		if (!linked)
+		{
+			return;
+		}
+
+		ArrayList<Object> treeSelection = new ArrayList<Object>();
+
+		ArrayList<Object> nodes = ASTManager.getDocumentAST(document).getTrees();
+		for (int i = 0; i < nodes.size(); i++)
+		{
+			Object node = nodes.get(i);
+			if (node instanceof AbsTag)
+			{
+				AbsTag tag = (AbsTag) node;
+				if (tag.getOffset() <= offset && offset <= tag.getOffset() + tag.getLength() - 1)
+				{
+					treeSelection.add(tag);
+
+					if (tag instanceof ComplexTag)
+					{
+						nodes = ((ComplexTag) tag).getChildren();
+						i = -1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+		}
+
+		if (treeSelection.size() > 0)
+		{
+			while (treeSelection.size() > 1)
+			{
+				tree.expandToLevel(treeSelection.remove(0), 1);
+			}
+			tree.setSelection(new StructuredSelection(treeSelection.remove(0)));
+		}
+		
+		tree.addSelectionChangedListener(treeSelectionListener);
+	}
+
+	private class TreeLabelProvider implements ILabelProvider
 	{
 		@Override
 		public void addListener(ILabelProviderListener listener)
@@ -257,11 +295,11 @@ public class ViewEditorOutline implements IContentOutlinePage
 				}
 				else if (tag.isBitmap())
 				{
-					return PluginResource.getIcon("fileIcon_img.gif");
+					return PluginResource.getIcon("nodeIcon_img.gif");
 				}
 				else if (tag.isBitmapRenderer())
 				{
-					return PluginResource.getIcon("fileIcon_img.gif");
+					return PluginResource.getIcon("nodeIcon_9scale.gif");
 				}
 				else if (tag.isSwf())
 				{
@@ -291,13 +329,14 @@ public class ViewEditorOutline implements IContentOutlinePage
 				}
 				else if (tag.isItem())
 				{
+					String prefix=tag==editingTag ? "*":"";
 					if (tag.isControl())
 					{
-						return tag.getAttributeValue("id") + " - " + tag.getName();
+						return prefix+tag.getAttributeValue("id") + " - " + tag.getName();
 					}
 					else
 					{
-						return tag.getAttributeValue("id");
+						return prefix+tag.getAttributeValue("id");
 					}
 				}
 				else
@@ -309,7 +348,7 @@ public class ViewEditorOutline implements IContentOutlinePage
 		}
 	}
 
-	private static class TreeContentProvider implements ITreeContentProvider
+	private class TreeContentProvider implements ITreeContentProvider
 	{
 		@Override
 		public void dispose()
