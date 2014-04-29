@@ -27,15 +27,23 @@ import org.game.knight.ast.AST;
 import org.game.knight.ast.AST.Token;
 import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.AbsTag;
-import org.game.knight.ast.ComplexTag;
-import org.game.knight.ast.SingleTag;
+import org.game.knight.ast.DefineControlTag;
+import org.game.knight.ast.DefineFilterTag;
+import org.game.knight.ast.DefineFormatTag;
+import org.game.knight.ast.DefineGridImgTag;
+import org.game.knight.ast.DefineImgTag;
+import org.game.knight.ast.DefineSwfTag;
+import org.game.knight.ast.DefineTag;
+import org.game.knight.ast.DefineTextTag;
+import org.game.knight.ast.ImportXmlTag;
+import org.game.knight.ast.ResourceSetTag;
 
 public class ViewEditorOutline implements IContentOutlinePage
 {
 	private ViewEditor editor;
 	private IDocument document;
 	
-	private AbsTag editingTag;
+	private DefineTag editingTag;
 
 	private TreeViewer tree;
 
@@ -122,19 +130,17 @@ public class ViewEditorOutline implements IContentOutlinePage
 			{
 				IStructuredSelection select = (IStructuredSelection) obj;
 				Object item = select.getFirstElement();
-				if (item instanceof AbsTag)
+				if (item instanceof DefineTag)
 				{
-					AbsTag tag=(AbsTag)item;
-					if(tag.isItem())
+					DefineTag tag=(DefineTag)item;
+					
+					if(editingTag!=tag)
 					{
-						if(editingTag!=tag)
-						{
-							editingTag=tag;
-							tree.refresh();
-							
-							editor.editTag(tag);
-							editor.setFocus();
-						}
+						editingTag=tag;
+						tree.refresh();
+						
+						editor.editTag(tag);
+						editor.setFocus();
 					}
 				}
 			}
@@ -224,22 +230,24 @@ public class ViewEditorOutline implements IContentOutlinePage
 		for (int i = 0; i < nodes.size(); i++)
 		{
 			Object node = nodes.get(i);
-			if (node instanceof AbsTag)
+			if (!(node instanceof AbsTag))
 			{
-				AbsTag tag = (AbsTag) node;
-				if (tag.getOffset() <= offset && offset <= tag.getOffset() + tag.getLength() - 1)
+				continue;
+			}
+			
+			AbsTag tag = (AbsTag) node;
+			if (tag.getOffset() <= offset && offset <= tag.getOffset() + tag.getLength() - 1)
+			{
+				treeSelection.add(tag);
+				
+				if(tag.getChildren()!=null)
 				{
-					treeSelection.add(tag);
-
-					if (tag instanceof ComplexTag)
-					{
-						nodes = ((ComplexTag) tag).getChildren();
-						i = -1;
-					}
-					else
-					{
-						break;
-					}
+					nodes = tag.getChildren();
+					i = -1;
+				}
+				else
+				{
+					break;
 				}
 			}
 		}
@@ -282,33 +290,29 @@ public class ViewEditorOutline implements IContentOutlinePage
 		@Override
 		public Image getImage(Object element)
 		{
-			if (element instanceof AbsTag)
+			if(element instanceof ResourceSetTag)
 			{
-				AbsTag tag = (AbsTag) element;
-				if (tag.isList())
-				{
-					return PluginResource.getIcon("actionIcon.gif");
-				}
-				else if (tag.isDepend())
-				{
-					return PluginResource.getIcon("fileIcon_view.gif");
-				}
-				else if (tag.isBitmap())
-				{
-					return PluginResource.getIcon("nodeIcon_img.gif");
-				}
-				else if (tag.isBitmapRenderer())
-				{
-					return PluginResource.getIcon("nodeIcon_9scale.gif");
-				}
-				else if (tag.isSwf())
-				{
-					return PluginResource.getIcon("fileIcon_swf.gif");
-				}
-				else if (tag.isControl())
-				{
-					return PluginResource.getIcon("viewIcon_design.gif");
-				}
+				return PluginResource.getIcon("actionIcon.gif");
+			}
+			if(element instanceof ImportXmlTag)
+			{
+				return PluginResource.getIcon("fileIcon_view.gif");
+			}
+			if(element instanceof DefineImgTag)
+			{
+				return PluginResource.getIcon("nodeIcon_img.gif");
+			}
+			if(element instanceof DefineGridImgTag)
+			{
+				return PluginResource.getIcon("nodeIcon_9scale.gif");
+			}
+			if(element instanceof DefineSwfTag)
+			{
+				return PluginResource.getIcon("fileIcon_swf.gif");
+			}
+			if(element instanceof DefineControlTag)
+			{
+				return PluginResource.getIcon("viewIcon_design.gif");
 			}
 			return PluginResource.getIcon("tag.gif");
 		}
@@ -316,33 +320,21 @@ public class ViewEditorOutline implements IContentOutlinePage
 		@Override
 		public String getText(Object element)
 		{
-			if (element instanceof SingleTag)
+			if(element instanceof ImportXmlTag)
 			{
-				SingleTag tag = (SingleTag) element;
-				if (tag.isList())
-				{
-					return tag.getName();
-				}
-				else if (tag.isDepend())
-				{
-					return tag.getAttributeValue("src");
-				}
-				else if (tag.isItem())
-				{
-					String prefix=tag==editingTag ? "*":"";
-					if (tag.isControl())
-					{
-						return prefix+tag.getAttributeValue("id") + " - " + tag.getName();
-					}
-					else
-					{
-						return prefix+tag.getAttributeValue("id");
-					}
-				}
-				else
-				{
-					return tag.getName();
-				}
+				return ((ImportXmlTag)element).getSrc();
+			}
+			if(element instanceof DefineControlTag)
+			{
+				return (element==editingTag ? "*":"")+((DefineControlTag)element).getID()+" - "+((DefineControlTag)element).getName();
+			}
+			if(element instanceof DefineTag)
+			{
+				return (element==editingTag ? "*":"")+((DefineTag)element).getID();
+			}
+			if(element instanceof AbsTag)
+			{
+				return ((AbsTag)element).getName();
 			}
 			return element.toString();
 		}
@@ -369,19 +361,15 @@ public class ViewEditorOutline implements IContentOutlinePage
 		@Override
 		public boolean hasChildren(Object element)
 		{
-			if (element instanceof ComplexTag)
+			if(element instanceof AbsTag)
 			{
-				ComplexTag tag = (ComplexTag) element;
-				if (tag.isItem() && tag.isControl() == false)
+				AbsTag tag=(AbsTag)element;
+				if(tag instanceof ImportXmlTag || tag instanceof DefineImgTag || tag instanceof DefineSwfTag || tag instanceof DefineGridImgTag || tag instanceof DefineFilterTag || tag instanceof DefineFormatTag || tag instanceof DefineTextTag)
 				{
 					return false;
 				}
-				else
-				{
-					return true;
-				}
 			}
-			return false;
+			return true;
 		}
 
 		@Override
@@ -393,9 +381,9 @@ public class ViewEditorOutline implements IContentOutlinePage
 		@Override
 		public Object[] getChildren(Object parentElement)
 		{
-			if (parentElement instanceof ComplexTag)
+			if(parentElement instanceof AbsTag)
 			{
-				return filterChildren(((ComplexTag) parentElement).getChildren());
+				return filterChildren(((AbsTag)parentElement).getChildren());
 			}
 			return null;
 		}
@@ -403,14 +391,17 @@ public class ViewEditorOutline implements IContentOutlinePage
 		private Object[] filterChildren(ArrayList<Object> children)
 		{
 			ArrayList<Object> objects = new ArrayList<Object>();
-			for (Object child : children)
+			if(children!=null)
 			{
-				if (child instanceof Token)
+				for (Object child : children)
 				{
-					continue;
+					if (child instanceof Token)
+					{
+						continue;
+					}
+	
+					objects.add(child);
 				}
-
-				objects.add(child);
 			}
 
 			return objects.toArray(new Object[objects.size()]);

@@ -12,7 +12,7 @@ public class ASTLinks
 	private IFile file;
 	private String innerPath;
 	private ArrayList<Object> children;
-	private ComplexTag root = null;
+	private AbsTag root = null;
 
 	private ArrayList<IdDef> idDefs = new ArrayList<IdDef>();
 	private ArrayList<IdRef> idRefs = new ArrayList<IdRef>();
@@ -36,34 +36,37 @@ public class ASTLinks
 		initalizeRoot();
 		initalizeParts();
 	}
-	
+
 	/**
 	 * 获取文件
+	 * 
 	 * @return
 	 */
 	public IFile getFile()
 	{
 		return file;
 	}
-	
+
 	/**
 	 * 获取文件引用列表
+	 * 
 	 * @return
 	 */
 	public ArrayList<FileRef> getFileRefs()
 	{
 		return fileRefs;
 	}
-	
+
 	/**
 	 * 获取ID引用列表
+	 * 
 	 * @return
 	 */
 	public ArrayList<IdRef> getIdRefs()
 	{
 		return idRefs;
 	}
-	
+
 	/**
 	 * 获取ID定义
 	 * 
@@ -123,8 +126,8 @@ public class ASTLinks
 	 * 
 	 * @param id
 	 * @return
-	 * @throws IOException 
-	 * @throws CoreException 
+	 * @throws IOException
+	 * @throws CoreException
 	 */
 	public IdDef findIDDef(IdRef ref) throws CoreException, IOException
 	{
@@ -192,11 +195,11 @@ public class ASTLinks
 	 */
 	private void initalizeRoot()
 	{
-		for (Object obj : children)
+		for (Object child : children)
 		{
-			if (obj instanceof ComplexTag)
+			if (((AbsTag) child).getChildren() != null)
 			{
-				root = (ComplexTag) obj;
+				root = (AbsTag) child;
 				break;
 			}
 		}
@@ -214,10 +217,14 @@ public class ASTLinks
 
 		for (Object child : root.getChildren())
 		{
-			if (child instanceof ComplexTag)
+			if (!(child instanceof AbsTag))
 			{
-				ComplexTag tag = (ComplexTag) child;
+				continue;
+			}
 
+			AbsTag tag = (AbsTag) child;
+			if (tag.getChildren() != null)
+			{
 				String tagName = tag.getName();
 				if (tagName.equals("depends"))
 				{
@@ -256,16 +263,16 @@ public class ASTLinks
 	}
 
 	// depends
-	private void initalizeDepends(ComplexTag tag)
+	private void initalizeDepends(AbsTag tag)
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof SingleTag))
+			if (!(child instanceof AbsTag))
 			{
 				continue;
 			}
 
-			SingleTag curr = (SingleTag) child;
+			AbsTag curr = (AbsTag) child;
 			if (!curr.getName().equals("depend"))
 			{
 				continue;
@@ -305,16 +312,16 @@ public class ASTLinks
 	}
 
 	// bitmaps
-	private void initalizeBitmaps(ComplexTag tag)
+	private void initalizeBitmaps(AbsTag tag)
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof SingleTag))
+			if (!(child instanceof AbsTag))
 			{
 				continue;
 			}
 
-			SingleTag curr = (SingleTag) child;
+			AbsTag curr = (AbsTag) child;
 			if (!curr.getName().equals("bitmap"))
 			{
 				continue;
@@ -431,16 +438,16 @@ public class ASTLinks
 	}
 
 	// bitmapRenders
-	private void initalizeBitmapRenders(ComplexTag tag)
+	private void initalizeBitmapRenders(AbsTag tag)
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof SingleTag))
+			if (!(child instanceof AbsTag))
 			{
 				continue;
 			}
 
-			SingleTag curr = (SingleTag) child;
+			AbsTag curr = (AbsTag) child;
 			if (!curr.getName().equals("bitmapReader"))
 			{
 				continue;
@@ -501,16 +508,16 @@ public class ASTLinks
 	}
 
 	// swfs
-	private void initalizeSwfs(ComplexTag tag)
+	private void initalizeSwfs(AbsTag tag)
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof SingleTag))
+			if (!(child instanceof AbsTag))
 			{
 				continue;
 			}
 
-			SingleTag curr = (SingleTag) child;
+			AbsTag curr = (AbsTag) child;
 			if (!curr.getName().equals("swf"))
 			{
 				continue;
@@ -583,16 +590,16 @@ public class ASTLinks
 	}
 
 	// filters
-	private void initalizeFilters(ComplexTag tag)
+	private void initalizeFilters(AbsTag tag)
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof SingleTag))
+			if (!(child instanceof AbsTag))
 			{
 				continue;
 			}
 
-			SingleTag curr = (SingleTag) child;
+			AbsTag curr = (AbsTag) child;
 			if (!curr.getName().equals("filter"))
 			{
 				continue;
@@ -627,16 +634,16 @@ public class ASTLinks
 	}
 
 	// formats
-	private void initalizeFormats(ComplexTag tag)
+	private void initalizeFormats(AbsTag tag)
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof SingleTag))
+			if (!(child instanceof AbsTag))
 			{
 				continue;
 			}
 
-			SingleTag curr = (SingleTag) child;
+			AbsTag curr = (AbsTag) child;
 			if (!curr.getName().equals("format"))
 			{
 				continue;
@@ -669,7 +676,7 @@ public class ASTLinks
 			}
 
 			// 检查filter属性
-			if (filterAttribute!=null && filterValue.trim().isEmpty())
+			if (filterAttribute != null && filterValue.trim().isEmpty())
 			{
 				System.err.println("format节点的filter属性不能为空!");
 			}
@@ -693,16 +700,16 @@ public class ASTLinks
 	}
 
 	// texts
-	private void initalizeTexts(ComplexTag tag)
+	private void initalizeTexts(AbsTag tag)
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof SingleTag))
+			if (!(child instanceof AbsTag))
 			{
 				continue;
 			}
 
-			SingleTag curr = (SingleTag) child;
+			AbsTag curr = (AbsTag) child;
 			if (!curr.getName().equals("text"))
 			{
 				continue;
@@ -737,16 +744,16 @@ public class ASTLinks
 	}
 
 	// controls
-	private void initalizeControls(ComplexTag tag)
+	private void initalizeControls(AbsTag tag)
 	{
 		for (Object child : tag.getChildren())
 		{
-			if (!(child instanceof SingleTag))
+			if (!(child instanceof AbsTag))
 			{
 				continue;
 			}
 
-			SingleTag curr = (SingleTag) child;
+			AbsTag curr = (AbsTag) child;
 
 			// 取出id属性
 			String idValue = null;
@@ -779,7 +786,7 @@ public class ASTLinks
 	}
 
 	// 查找ID引用
-	private void findIdRef(SingleTag tag)
+	private void findIdRef(AbsTag tag)
 	{
 		for (Attribute attribute : tag.getAttributes())
 		{
@@ -792,14 +799,17 @@ public class ASTLinks
 			}
 		}
 
-		if (tag instanceof ComplexTag)
+		if (tag instanceof AbsTag)
 		{
-			ComplexTag box = (ComplexTag) tag;
-			for (Object child : box.getChildren())
+			AbsTag box = (AbsTag) tag;
+			if (box.getChildren() != null)
 			{
-				if (child instanceof SingleTag)
+				for (Object child : box.getChildren())
 				{
-					findIdRef((SingleTag)child);
+					if (child instanceof AbsTag)
+					{
+						findIdRef((AbsTag) child);
+					}
 				}
 			}
 		}

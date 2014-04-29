@@ -6,6 +6,7 @@ import org.eclipse.gef.editparts.FreeformGraphicalRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -20,6 +21,7 @@ import org.game.knight.PluginResource;
 import org.game.knight.ast.AST;
 import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.AbsTag;
+import org.game.knight.ast.DefineTag;
 import org.game.knight.ast.FileRef;
 import org.game.knight.ast.IdDef;
 import org.game.knight.ast.IdRef;
@@ -39,7 +41,7 @@ public class ViewEditor extends TextEditor
 
 	private CTabFolder folder;
 	private GraphicalViewer viewer;
-	private AbsTag currentTag;
+	private DefineTag currentTag;
 
 	public ViewEditor()
 	{
@@ -65,23 +67,30 @@ public class ViewEditor extends TextEditor
 
 		folder.setSelection(0);
 	}
-	
+
 	public void selectTag(AbsTag tag)
 	{
-		if(folder.getSelectionIndex()==0)
+		if (folder.getSelectionIndex() == 0)
 		{
 			selectRange(tag.getOffset(), tag.getLength());
 		}
 	}
-	
-	public void editTag(AbsTag tag)
+
+	public void editTag(DefineTag tag)
 	{
-		if(folder.getSelectionIndex()==0)
+		if (folder.getSelectionIndex() == 0)
 		{
 			getSourceViewer().setSelectedRange(getSourceViewer().getSelectedRange().x, 0);
 		}
-		currentTag=tag;
+		currentTag = tag;
 		folder.setSelection(1);
+
+		viewer.setContents(tag);
+	}
+
+	public IDocument getDocument()
+	{
+		return getSourceViewer().getDocument();
 	}
 
 	@Override
@@ -133,7 +142,7 @@ public class ViewEditor extends TextEditor
 	{
 		super.handleCursorPositionChanged();
 
-		if (outline != null && folder.getSelectionIndex()==0)
+		if (outline != null && folder.getSelectionIndex() == 0)
 		{
 			outline.handleCursorPositionChanged(getSourceViewer().getTextWidget().getSelection().x);
 		}

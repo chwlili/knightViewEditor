@@ -1,5 +1,8 @@
 package org.game.knight.ast;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
+
 import org.game.knight.ast.AST.Token;
 
 public class AbsTag
@@ -24,23 +27,51 @@ public class AbsTag
 	public static final int TextList = id++;
 	public static final int ControlList = id++;
 
+	private AST ast;
+	private boolean complex;
 	private int type;
 	private Token start;
 	private Token stop;
 
+	private Token name;
+	private ArrayList<Attribute> attributes;
+	private ArrayList<Object> children;
+	
+	private Hashtable<String, Attribute> attributeTable;
+	
 	/**
 	 * 构造函数
 	 * 
 	 * @param start
 	 * @param stop
 	 */
-	public AbsTag(int type, Token start, Token stop)
+	public AbsTag(AST ast, boolean complex, Token start, Token stop, Token name, ArrayList<Attribute> attributes, ArrayList<Object> children)
 	{
+		this.ast = ast;
+		this.complex=complex;
 		this.type = type;
 		this.start = start;
 		this.stop = stop;
-	}
 
+		this.name = name;
+		this.attributes = attributes;
+		this.children = children;
+		
+		this.attributeTable = new Hashtable<String, Attribute>();
+		if (attributes != null)
+		{
+			for (Attribute attribute : attributes)
+			{
+				attributeTable.put(attribute.getNameToken().text, attribute);
+			}
+		}
+	}
+	
+	protected AST getAST()
+	{
+		return ast;
+	}
+	
 	/**
 	 * 开始位置
 	 * 
@@ -59,6 +90,77 @@ public class AbsTag
 	public int getLength()
 	{
 		return stop.stop - start.start + 1;
+	}
+
+	/**
+	 * 获取标记名称
+	 * 
+	 * @return
+	 */
+	public String getName()
+	{
+		return name.text;
+	}
+
+	/**
+	 * 获取属性列表
+	 * 
+	 * @return
+	 */
+	public ArrayList<Attribute> getAttributes()
+	{
+		return attributes;
+	}
+
+	/**
+	 * 获取子级列表
+	 * 
+	 * @return
+	 */
+	public ArrayList<Object> getChildren()
+	{
+		return children;
+	}
+
+	/**
+	 * 是否是指定的属性
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public boolean hasAttribute(String name)
+	{
+		return attributeTable.containsKey(name);
+	}
+
+	/**
+	 * 获取属性
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Attribute getAttribute(String name)
+	{
+		if (attributeTable.containsKey(name))
+		{
+			return attributeTable.get(name);
+		}
+		return null;
+	}
+
+	/**
+	 * 获取属性值
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public String getAttributeValue(String name)
+	{
+		if (attributeTable.containsKey(name))
+		{
+			return attributeTable.get(name).getValue();
+		}
+		return null;
 	}
 
 	/**
