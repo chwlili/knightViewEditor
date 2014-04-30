@@ -108,7 +108,7 @@ public class ViewEditor extends TextEditor
 		Composite sourceBox = new Composite(folder, SWT.None);
 		sourceBox.setBackground(PluginResource.getColor(153, 180, 209));
 		sourceBox.setLayout(new FillLayout());
-
+		
 		Composite designBox = new Composite(folder, SWT.None);
 		designBox.setLayout(new FillLayout());
 		viewerComposite=designBox;
