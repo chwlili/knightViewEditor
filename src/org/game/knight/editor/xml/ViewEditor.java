@@ -40,6 +40,8 @@ public class ViewEditor extends TextEditor
 	public static final String ID = "org.game.editors.XML";
 
 	private CTabFolder folder;
+	
+	private Composite viewerComposite;
 	private GraphicalViewer viewer;
 	private DefineTag currentTag;
 
@@ -86,6 +88,8 @@ public class ViewEditor extends TextEditor
 		folder.setSelection(1);
 
 		viewer.setContents(tag);
+		viewerComposite.getHorizontalBar().setVisible(false);
+		viewerComposite.getVerticalBar().setVisible(false);
 	}
 
 	public IDocument getDocument()
@@ -105,8 +109,9 @@ public class ViewEditor extends TextEditor
 		sourceBox.setBackground(PluginResource.getColor(153, 180, 209));
 		sourceBox.setLayout(new FillLayout());
 
-		Composite designBox = new Composite(folder, SWT.NONE);
+		Composite designBox = new Composite(folder, SWT.None);
 		designBox.setLayout(new FillLayout());
+		viewerComposite=designBox;
 		viewer = new ScrollingGraphicalViewer();
 		viewer.createControl(designBox);
 		viewer.setEditDomain(new DefaultEditDomain(this));

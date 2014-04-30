@@ -13,7 +13,7 @@ public class GefPartFactory implements EditPartFactory
 		
 		if(model instanceof DefineImgTag)
 		{
-			part=new BitmapResPart();
+			part=new DefineImgPart();
 		}
 		else if(model instanceof DefineTextPart)
 		{

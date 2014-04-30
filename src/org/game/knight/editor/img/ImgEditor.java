@@ -250,7 +250,7 @@ public class ImgEditor extends EditorPart implements IMenuListener, PaintListene
 				
 				x+=cellSize*2;
 				
-				if(x>canvasRect.width)
+				if(x>=canvasRect.width)
 				{
 					x=0;
 					y+=cellSize;
