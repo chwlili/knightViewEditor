@@ -21,11 +21,16 @@ public class DefineTextTag extends DefineTag
 			{
 				if(child instanceof Token)
 				{
-					stream.append(((Token)child).text);
+					stream.append(((Token)child).text.trim());
+				}
+				else if(child instanceof CDataTag)
+				{
+					CDataTag cdata=(CDataTag)child;
+					stream.append(cdata.getText());
 				}
 			}
 			return stream.toString();
 		}
-		return "11111111111";
+		return "";
 	}
 }

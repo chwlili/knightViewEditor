@@ -1,9 +1,7 @@
 package org.game.knight.editor.xml;
 
 import org.eclipse.gef.DefaultEditDomain;
-import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.FreeformGraphicalRootEditPart;
-import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.IDocument;
@@ -30,7 +28,8 @@ import org.game.knight.editor.xml.action.LookFileAction;
 import org.game.knight.editor.xml.action.LookIdAction;
 import org.game.knight.editor.xml.action.RenameFileAction;
 import org.game.knight.editor.xml.action.RenameIdAction;
-import org.game.knight.editor.xml.design.GefPartFactory;
+import org.game.knight.editor.xml.design.GefFactory;
+import org.game.knight.editor.xml.design.GefViewer;
 import org.game.knight.refactor.MoveFileAction;
 import org.game.knight.search.SearchFileRefAction;
 import org.game.knight.search.SearchIdRefAction;
@@ -41,8 +40,7 @@ public class ViewEditor extends TextEditor
 
 	private CTabFolder folder;
 	
-	private Composite viewerComposite;
-	private GraphicalViewer viewer;
+	private GefViewer viewer;
 	private DefineTag currentTag;
 
 	public ViewEditor()
@@ -68,6 +66,7 @@ public class ViewEditor extends TextEditor
 		}
 
 		folder.setSelection(0);
+		setFocus();
 	}
 
 	public void selectTag(AbsTag tag)
@@ -86,10 +85,10 @@ public class ViewEditor extends TextEditor
 		}
 		currentTag = tag;
 		folder.setSelection(1);
-
+		
+		viewer.offShowScroller();
 		viewer.setContents(tag);
-		viewerComposite.getHorizontalBar().setVisible(false);
-		viewerComposite.getVerticalBar().setVisible(false);
+		setFocus();
 	}
 
 	public IDocument getDocument()
@@ -111,12 +110,11 @@ public class ViewEditor extends TextEditor
 		
 		Composite designBox = new Composite(folder, SWT.None);
 		designBox.setLayout(new FillLayout());
-		viewerComposite=designBox;
-		viewer = new ScrollingGraphicalViewer();
+		viewer = new GefViewer();
 		viewer.createControl(designBox);
 		viewer.setEditDomain(new DefaultEditDomain(this));
 		viewer.setRootEditPart(new FreeformGraphicalRootEditPart());
-		viewer.setEditPartFactory(new GefPartFactory());
+		viewer.setEditPartFactory(new GefFactory());
 
 		Composite previewBox = new Composite(folder, SWT.None);
 		previewBox.setLayout(new FillLayout());
@@ -150,6 +148,19 @@ public class ViewEditor extends TextEditor
 		if (outline != null && folder.getSelectionIndex() == 0)
 		{
 			outline.handleCursorPositionChanged(getSourceViewer().getTextWidget().getSelection().x);
+		}
+	}
+	
+	@Override
+	public void setFocus()
+	{
+		if(folder.getSelectionIndex()==1)
+		{
+			folder.setFocus();
+		}
+		else
+		{
+			super.setFocus();
 		}
 	}
 

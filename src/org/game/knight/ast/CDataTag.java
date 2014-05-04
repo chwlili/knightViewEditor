@@ -14,4 +14,9 @@ public class CDataTag
 		this.stop=stop;
 		this.text=text;
 	}
+	
+	public String getText()
+	{
+		return text.text;
+	}
 }

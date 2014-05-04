@@ -12,9 +12,9 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.game.knight.PluginResource;
-import org.game.knight.ast.DefineImgTag;
+import org.game.knight.ast.DefineGridImgTag;
 
-public class DefineImgPart extends AbstractGraphicalEditPart
+public class DefineGridImgPart extends AbstractGraphicalEditPart
 {
 	private Image img;
 	private String imgURL;
@@ -26,9 +26,9 @@ public class DefineImgPart extends AbstractGraphicalEditPart
 	private int downOffsetX = 0;
 	private int downOffsetY = 0;
 
-	public DefineImgTag getTag()
+	public DefineGridImgTag getTag()
 	{
-		return (DefineImgTag) getModel();
+		return (DefineGridImgTag) getModel();
 	}
 
 	@Override

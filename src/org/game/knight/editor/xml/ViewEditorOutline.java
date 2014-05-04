@@ -1,6 +1,7 @@
 package org.game.knight.editor.xml;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -111,10 +112,9 @@ public class ViewEditorOutline implements IContentOutlinePage
 			{
 				IStructuredSelection select = (IStructuredSelection) obj;
 				Object item = select.getFirstElement();
-				if (item instanceof AbsTag)
+				if ((item instanceof AbsTag) && !(item instanceof ResourceSetTag))
 				{
 					editor.selectTag((AbsTag)item);
-					editor.setFocus();
 				}
 			}
 		}
@@ -140,7 +140,31 @@ public class ViewEditorOutline implements IContentOutlinePage
 						tree.refresh();
 						
 						editor.editTag(tag);
-						editor.setFocus();
+					}
+				}
+				else if(item instanceof AbsTag)
+				{
+					AbsTag tag=(AbsTag)item;
+					if(tag.getChildren()!=null && tag.getChildren().size()>0)
+					{
+						boolean finded=false;
+						for(Object node:tree.getExpandedElements())
+						{
+							if(node==tag)
+							{
+								finded=true;
+								break;
+							}
+						}
+						
+						if(finded)
+						{
+							tree.collapseToLevel(tag, 1);
+						}
+						else
+						{
+							tree.expandToLevel(tag, 1);
+						}
 					}
 				}
 			}
@@ -161,6 +185,7 @@ public class ViewEditorOutline implements IContentOutlinePage
 		tree.setContentProvider(new TreeContentProvider());
 		tree.addSelectionChangedListener(treeSelectionListener);
 		tree.addDoubleClickListener(treeDoubleClickListener);
+		tree.setAutoExpandLevel(2);
 		tree.setInput(ASTManager.getDocumentAST(document));
 	}
 
@@ -365,6 +390,10 @@ public class ViewEditorOutline implements IContentOutlinePage
 			{
 				AbsTag tag=(AbsTag)element;
 				if(tag instanceof ImportXmlTag || tag instanceof DefineImgTag || tag instanceof DefineSwfTag || tag instanceof DefineGridImgTag || tag instanceof DefineFilterTag || tag instanceof DefineFormatTag || tag instanceof DefineTextTag)
+				{
+					return false;
+				}
+				if(tag.getChildren()==null)
 				{
 					return false;
 				}

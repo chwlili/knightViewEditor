@@ -5,15 +5,17 @@ import org.eclipse.draw2d.text.FlowPage;
 import org.eclipse.draw2d.text.ParagraphTextLayout;
 import org.eclipse.draw2d.text.TextFlow;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
+import org.game.knight.ast.DefineFormatTag;
 import org.game.knight.ast.DefineTextTag;
+import org.game.knight.editor.xml.design.DefineTextPart.Text;
 
-public class DefineTextPart extends AbstractGraphicalEditPart
+public class DefineFormatPart extends AbstractGraphicalEditPart
 {
 	private Text text;
 
-	public DefineTextTag getTag()
+	public DefineFormatTag getTag()
 	{
-		return (DefineTextTag) getModel();
+		return (DefineFormatTag) getModel();
 	}
 
 	@Override
@@ -31,7 +33,7 @@ public class DefineTextPart extends AbstractGraphicalEditPart
 	@Override
 	protected void refreshVisuals()
 	{
-		text.setText(getTag().getText());
+		text.setText("xxxxxxxxxxxxxxxxxxxxxxxxx");
 		text.setBounds(text.getParent().getBounds());
 	}
 
