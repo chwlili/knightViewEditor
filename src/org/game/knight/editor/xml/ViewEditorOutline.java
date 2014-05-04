@@ -1,7 +1,6 @@
 package org.game.knight.editor.xml;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;

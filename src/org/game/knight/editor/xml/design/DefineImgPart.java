@@ -25,6 +25,8 @@ public class DefineImgPart extends AbstractGraphicalEditPart
 	private int downY = 0;
 	private int downOffsetX = 0;
 	private int downOffsetY = 0;
+	
+	private GefDropListener dropListener;
 
 	public DefineImgTag getTag()
 	{
@@ -35,9 +37,15 @@ public class DefineImgPart extends AbstractGraphicalEditPart
 	public void activate()
 	{
 		super.activate();
-
+		
+		if(dropListener==null)
+		{
+			dropListener=new GefDropListener(getViewer());
+		}
+		
 		getViewer().getControl().addControlListener(controlListener);
 		getViewer().getEditDomain().setActiveTool(tool);
+		getViewer().addDropTargetListener(dropListener);
 	}
 
 	@Override
@@ -45,6 +53,7 @@ public class DefineImgPart extends AbstractGraphicalEditPart
 	{
 		getViewer().getControl().removeControlListener(controlListener);
 		getViewer().getEditDomain().setActiveTool(getViewer().getEditDomain().getDefaultTool());
+		getViewer().removeDropTargetListener(dropListener);
 
 		if (img != null)
 		{
