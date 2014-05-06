@@ -50,7 +50,7 @@ public class AST
 	 */
 	public AST(IDocument document)
 	{
-		this.ast=this;
+		this.ast = this;
 		this.file = ASTManager.getDocumentFile(document);
 		this.document = document;
 
@@ -214,6 +214,7 @@ public class AST
 		private int FORMATS = id++;
 		private int TEXTS = id++;
 		private int CONTROLS = id++;
+		private int CONTROL = id++;
 
 		private Stack<Integer> stacks = new Stack<Integer>();
 
@@ -392,7 +393,14 @@ public class AST
 			}
 			else
 			{
-				stacks.push(DEFAULT);
+				if (stack == CONTROLS)
+				{
+					stacks.push(CONTROL);
+				}
+				else
+				{
+					stacks.push(DEFAULT);
+				}
 			}
 
 			Token first = null;
@@ -465,12 +473,13 @@ public class AST
 			}
 
 			stacks.pop();
-			
+
 			return createTag(true, name, first, last, attributes, children);
 		}
-		
+
 		/**
 		 * ¥¥Ω®±Í«©
+		 * 
 		 * @param complex
 		 * @param name
 		 * @param first
@@ -479,10 +488,10 @@ public class AST
 		 * @param children
 		 * @return
 		 */
-		private AbsTag createTag(boolean complex,Token name,Token first,Token last,ArrayList<Attribute> attributes,ArrayList<Object> children)
+		private AbsTag createTag(boolean complex, Token name, Token first, Token last, ArrayList<Attribute> attributes, ArrayList<Object> children)
 		{
-			String tagName=name.text;
-			
+			String tagName = name.text;
+
 			int type = stacks.lastElement();
 			if (type == ROOT && tagName.equals("depends"))
 			{
@@ -516,41 +525,45 @@ public class AST
 			{
 				return new ResourceSetTag(ast, complex, first, last, name, attributes, children);
 			}
-			
+
 			if (type == DEPENDS && tagName.equals("depend"))
 			{
-				return new ImportXmlTag(ast,complex,first,last,name,attributes,children);
+				return new ImportXmlTag(ast, complex, first, last, name, attributes, children);
 			}
 			if (type == BITMAPS && tagName.equals("bitmap"))
 			{
-				return new DefineImgTag(ast,complex,first,last,name,attributes,children);
+				return new DefineImgTag(ast, complex, first, last, name, attributes, children);
 			}
 			if (type == SWFS && tagName.equals("swf"))
 			{
-				return new DefineSwfTag(ast,complex,first,last,name,attributes,children);
+				return new DefineSwfTag(ast, complex, first, last, name, attributes, children);
 			}
 			if (type == BITMAP_RENDERS && tagName.equals("bitmapReader"))
 			{
-				return new DefineGridImgTag(ast,complex,first,last,name,attributes,children);
+				return new DefineGridImgTag(ast, complex, first, last, name, attributes, children);
 			}
 			if (type == FILTERS && tagName.equals("filter"))
 			{
-				return new DefineFilterTag(ast,complex,first,last,name,attributes,children);
+				return new DefineFilterTag(ast, complex, first, last, name, attributes, children);
 			}
 			if (type == FORMATS && tagName.equals("format"))
 			{
-				return new DefineFormatTag(ast,complex,first,last,name,attributes,children);
+				return new DefineFormatTag(ast, complex, first, last, name, attributes, children);
 			}
 			if (type == TEXTS && tagName.equals("text"))
 			{
-				return new DefineTextTag(ast,complex,first,last,name,attributes,children);
+				return new DefineTextTag(ast, complex, first, last, name, attributes, children);
 			}
 			if (type == CONTROLS)
 			{
-				return new DefineControlTag(ast,complex,first,last,name,attributes,children);
+				return new DefineControlTag(ast, complex, first, last, name, attributes, children, true);
 			}
-			
-			return new AbsTag(ast,complex,first,last,name,attributes,children);
+			if (type == CONTROL)
+			{
+				return new DefineControlTag(ast, complex, first, last, name, attributes, children,false);
+			}
+
+			return new AbsTag(ast, complex, first, last, name, attributes, children);
 		}
 
 		@Override
