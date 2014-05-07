@@ -135,10 +135,13 @@ public class ViewEditorOutline implements IContentOutlinePage
 					
 					if(editingTag!=tag)
 					{
-						editingTag=tag;
-						tree.refresh();
-						
-						editor.editTag(tag);
+						if(tag instanceof DefineControlTag && ((DefineControlTag)tag).isRoot())
+						{
+							editingTag=tag;
+							tree.refresh();
+							
+							editor.editTag(tag);
+						}
 					}
 				}
 				else if(item instanceof AbsTag)
@@ -336,7 +339,11 @@ public class ViewEditorOutline implements IContentOutlinePage
 			}
 			if(element instanceof DefineControlTag)
 			{
-				return PluginResource.getIcon("viewIcon_design.gif");
+				DefineControlTag control=(DefineControlTag) element;
+				if(control.isRoot())
+				{
+					return PluginResource.getIcon("viewIcon_design.gif");
+				}
 			}
 			return PluginResource.getIcon("tag.gif");
 		}
@@ -350,7 +357,15 @@ public class ViewEditorOutline implements IContentOutlinePage
 			}
 			if(element instanceof DefineControlTag)
 			{
-				return (element==editingTag ? "*":"")+((DefineControlTag)element).getID()+" - "+((DefineControlTag)element).getName();
+				DefineControlTag control=(DefineControlTag) element;
+				if(control.isRoot())
+				{
+					return (element==editingTag ? "*":"")+control.getID()+" - "+control.getName();
+				}
+				else
+				{
+					return ((AbsTag)element).getName();
+				}
 			}
 			if(element instanceof DefineTag)
 			{

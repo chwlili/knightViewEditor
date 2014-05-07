@@ -28,6 +28,7 @@ import org.game.knight.editor.xml.action.LookFileAction;
 import org.game.knight.editor.xml.action.LookIdAction;
 import org.game.knight.editor.xml.action.RenameFileAction;
 import org.game.knight.editor.xml.action.RenameIdAction;
+import org.game.knight.editor.xml.design.DefineControlTagBox;
 import org.game.knight.editor.xml.design.GefFactory;
 import org.game.knight.editor.xml.design.GefViewer;
 import org.game.knight.refactor.MoveFileAction;
@@ -87,7 +88,7 @@ public class ViewEditor extends TextEditor
 		folder.setSelection(1);
 		
 		viewer.offShowScroller();
-		viewer.setContents(tag);
+		viewer.setContents(new DefineControlTagBox(tag));
 		setFocus();
 	}
 

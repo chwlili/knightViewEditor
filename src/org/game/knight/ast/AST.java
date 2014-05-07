@@ -393,7 +393,7 @@ public class AST
 			}
 			else
 			{
-				if (stack == CONTROLS)
+				if (stack == CONTROLS || stack == CONTROL)
 				{
 					stacks.push(CONTROL);
 				}
@@ -560,7 +560,7 @@ public class AST
 			}
 			if (type == CONTROL)
 			{
-				return new DefineControlTag(ast, complex, first, last, name, attributes, children,false);
+				return new DefineControlTag(ast, complex, first, last, name, attributes, children, false);
 			}
 
 			return new AbsTag(ast, complex, first, last, name, attributes, children);

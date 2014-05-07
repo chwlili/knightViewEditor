@@ -5,53 +5,45 @@ import java.util.List;
 
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.RectangleFigure;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.ChangeBoundsRequest;
 import org.eclipse.gef.requests.CreateRequest;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
+import org.game.knight.ast.DefineControlTag;
 
-public class DefineControlPart extends AbstractGraphicalEditPart
+public class ControlPart extends AbstractGraphicalEditPart
 {
 	private Figure view;
-	private ControlListener resizeListener=new ControlListener()
+	
+	private DefineControlTag getTag()
 	{
-		@Override
-		public void controlResized(ControlEvent e)
-		{
-			refresh();
-		}
-		
-		@Override
-		public void controlMoved(ControlEvent e)
-		{
-		}
-	};
+		return (DefineControlTag)getModel();
+	}
 	
 	@Override
 	protected List getModelChildren()
 	{
-		DefineControlTagBox box=(DefineControlTagBox) getModel();
 		ArrayList<Object> list=new ArrayList<Object>();
-		list.add(box.tag);
+		if(getTag().getChildren()!=null)
+		{
+			for(Object tag:getTag().getChildren())
+			{
+				if(tag instanceof DefineControlTag)
+				{
+					list.add(tag);
+				}
+			}
+		}
 		return list;
-	}
-	
-	@Override
-	public void activate()
-	{
-		super.activate();
-		getViewer().getControl().addControlListener(resizeListener);
 	}
 	
 	@Override
 	protected IFigure createFigure()
 	{
-		view=new RectangleFigure();
+		view=GefFigureFactory.createFigure(getTag());
 		
 		return view;
 	}
@@ -78,9 +70,22 @@ public class DefineControlPart extends AbstractGraphicalEditPart
 	@Override
 	protected void refreshVisuals()
 	{
-		int w=getViewer().getControl().getBounds().width;
-		int h=getViewer().getControl().getBounds().height;
 		
+		int x=getTag().hasAttribute("x") ? Integer.parseInt(getTag().getAttributeValue("x")):getTag().hasAttribute("left") ? Integer.parseInt(getTag().getAttributeValue("left")):0;
+		int y=getTag().hasAttribute("y") ? Integer.parseInt(getTag().getAttributeValue("y")):getTag().hasAttribute("top") ? Integer.parseInt(getTag().getAttributeValue("top")):0;
+		
+		view.setLocation(new Point(x, y));
+
+		int w=getTag().hasAttribute("width") ? Integer.parseInt(getTag().getAttributeValue("width")):0;
+		int h=getTag().hasAttribute("height") ? Integer.parseInt(getTag().getAttributeValue("height")):0;
 		view.setSize(w, h);
+	}
+	
+	@Override
+	protected void refreshChildren()
+	{
+		super.refreshChildren();
+		
+		//getChildren()
 	}
 }

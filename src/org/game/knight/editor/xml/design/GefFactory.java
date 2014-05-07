@@ -13,7 +13,20 @@ public class GefFactory implements EditPartFactory
 	public EditPart createEditPart(EditPart context, Object model)
 	{
 		EditPart part = null;
-
+		
+		if(model instanceof DefineControlTagBox)
+		{
+			DefineControlTagBox box=(DefineControlTagBox)model;
+			if(box.tag instanceof DefineControlTag)
+			{
+				part=new DefineControlPart();
+			}
+			else
+			{
+				model=box.tag;
+			}
+		}
+		
 		if (model instanceof DefineImgTag)
 		{
 			part = new DefineImgPart();
@@ -28,7 +41,7 @@ public class GefFactory implements EditPartFactory
 		}
 		else if(model instanceof DefineControlTag)
 		{
-			part=new DefineControlPart();
+			part=new ControlPart();
 		}
 
 		if (part != null)
