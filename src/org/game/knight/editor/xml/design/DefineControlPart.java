@@ -3,7 +3,6 @@ package org.game.knight.editor.xml.design;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.RectangleFigure;
 import org.eclipse.gef.EditPolicy;
@@ -17,7 +16,10 @@ import org.eclipse.swt.events.ControlListener;
 
 public class DefineControlPart extends AbstractGraphicalEditPart
 {
-	private Figure view;
+	private int selfW=0;
+	private int selfH=0;
+	
+	
 	private ControlListener resizeListener=new ControlListener()
 	{
 		@Override
@@ -32,10 +34,11 @@ public class DefineControlPart extends AbstractGraphicalEditPart
 		}
 	};
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	protected List getModelChildren()
 	{
-		DefineControlTagBox box=(DefineControlTagBox) getModel();
+		TagInput box=(TagInput) getModel();
 		ArrayList<Object> list=new ArrayList<Object>();
 		list.add(box.tag);
 		return list;
@@ -49,11 +52,17 @@ public class DefineControlPart extends AbstractGraphicalEditPart
 	}
 	
 	@Override
+	public void deactivate()
+	{
+		getViewer().getControl().removeControlListener(resizeListener);
+		
+		super.deactivate();
+	}
+	
+	@Override
 	protected IFigure createFigure()
 	{
-		view=new RectangleFigure();
-		
-		return view;
+		return new RectangleFigure();
 	}
 
 	@Override
@@ -74,13 +83,28 @@ public class DefineControlPart extends AbstractGraphicalEditPart
 			}
 		});
 	}
-
+	
 	@Override
 	protected void refreshVisuals()
 	{
-		int w=getViewer().getControl().getBounds().width;
-		int h=getViewer().getControl().getBounds().height;
+		selfW=getViewer().getControl().getBounds().width;
+		selfH=getViewer().getControl().getBounds().height;
 		
-		view.setSize(w, h);
+		getFigure().setSize(selfW, selfH);
+	}
+	
+	@Override
+	protected void refreshChildren()
+	{
+		super.refreshChildren();
+		
+		for(Object child:getChildren())
+		{
+			if(child instanceof ControlPart)
+			{
+				ControlPart part=(ControlPart)child;
+				part.resetParentSize(selfW, selfH);
+			}
+		}
 	}
 }

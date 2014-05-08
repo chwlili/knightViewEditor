@@ -67,7 +67,7 @@ public class AbsTag
 		}
 	}
 	
-	protected AST getAST()
+	public AST getAST()
 	{
 		return ast;
 	}

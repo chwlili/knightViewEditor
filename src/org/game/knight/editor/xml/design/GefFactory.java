@@ -13,20 +13,20 @@ public class GefFactory implements EditPartFactory
 	public EditPart createEditPart(EditPart context, Object model)
 	{
 		EditPart part = null;
-		
-		if(model instanceof DefineControlTagBox)
+
+		if (model instanceof TagInput)
 		{
-			DefineControlTagBox box=(DefineControlTagBox)model;
-			if(box.tag instanceof DefineControlTag)
+			TagInput box = (TagInput) model;
+			if (box.tag instanceof DefineControlTag)
 			{
-				part=new DefineControlPart();
+				part = new DefineControlPart();
 			}
 			else
 			{
-				model=box.tag;
+				model = box.tag;
 			}
 		}
-		
+
 		if (model instanceof DefineImgTag)
 		{
 			part = new DefineImgPart();
@@ -39,9 +39,42 @@ public class GefFactory implements EditPartFactory
 		{
 			part = new DefineGridImgPart();
 		}
-		else if(model instanceof DefineControlTag)
+		else if (model instanceof DefineControlTag)
 		{
-			part=new ControlPart();
+			DefineControlTag tag = (DefineControlTag) model;
+			String tagName = tag.getName();
+			if (tagName.equals("image"))
+			{
+				part = new ImagePart();
+			}
+			else if (tagName.equals("bitmap"))
+			{
+				part = new BitmapPart();
+			}
+			else if (tagName.equals("label"))
+			{
+				part = new LabelPart();
+			}
+			else if (tagName.equals("box") || tagName.equals("window") || tagName.equals("confirm"))
+			{
+				part = new BoxPart();
+			}
+			else if (tagName.equals("button"))
+			{
+				part = new Button1Part();
+			}
+			else if(tagName.equals("labelButton"))
+			{
+				part=new Button2Part();
+			}
+			else if(tagName.equals("toggleButton"))
+			{
+				part=new Button3Part();
+			}
+			else
+			{
+				part = new ControlPart();
+			}
 		}
 
 		if (part != null)

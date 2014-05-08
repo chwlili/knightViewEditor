@@ -135,6 +135,44 @@ public class AST
 	}
 
 	/**
+	 * 按偏移查找标签
+	 * @param offset
+	 * @return
+	 */
+	public AbsTag getTagBy(int offset)
+	{
+		AbsTag result=null;
+
+		ArrayList<Object> nodes = getTrees();
+		for (int i = 0; i < nodes.size(); i++)
+		{
+			Object node = nodes.get(i);
+			if (!(node instanceof AbsTag))
+			{
+				continue;
+			}
+			
+			AbsTag tag = (AbsTag) node;
+			if (tag.getOffset() <= offset && offset <= tag.getOffset() + tag.getLength() - 1)
+			{
+				result=tag;
+				
+				if(tag.getChildren()!=null)
+				{
+					nodes = tag.getChildren();
+					i = -1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		
+		return result;
+	}
+
+	/**
 	 * 获取链接列表
 	 * 
 	 * @return
