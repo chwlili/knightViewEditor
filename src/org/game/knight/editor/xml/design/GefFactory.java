@@ -71,6 +71,10 @@ public class GefFactory implements EditPartFactory
 			{
 				part=new Button3Part();
 			}
+			else if(tagName.equals("labelToggleButton"))
+			{
+				part=new Button4Part();
+			}
 			else
 			{
 				part = new ControlPart();

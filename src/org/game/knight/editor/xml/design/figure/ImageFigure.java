@@ -1,11 +1,20 @@
 package org.game.knight.editor.xml.design.figure;
 
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Date;
+
+import javax.imageio.ImageIO;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.widgets.Display;
 
 public class ImageFigure extends Figure
@@ -78,9 +87,12 @@ public class ImageFigure extends Figure
 		bottom = value;
 	}
 
+	private static int drawCount = 0;
+
 	@Override
 	protected void paintFigure(Graphics graphics)
 	{
+
 		Rectangle rect = super.getBounds();
 
 		IFile file = getFile();
@@ -88,6 +100,10 @@ public class ImageFigure extends Figure
 		{
 			return;
 		}
+		Date begin = new Date();
+		System.out.println("ÖØ»æ:" + drawCount);
+		System.out.println("    " + getFile().getLocation().toString() + ")");
+		drawCount++;
 
 		Image image = null;
 
@@ -99,6 +115,9 @@ public class ImageFigure extends Figure
 		{
 			e.printStackTrace();
 		}
+		Date imageOK = new Date();
+		System.out.println("    Í¼Ïñ½¨Á¢:" + (imageOK.getTime() - begin.getTime()));
+		begin = imageOK;
 
 		if (image == null)
 		{
@@ -133,128 +152,87 @@ public class ImageFigure extends Figure
 				b = imgH - t;
 			}
 
-			int drawX = 0;
-			int drawY = 0;
-			int drawW = 0;
-			int drawH = 0;
-			int drawMaxX = 0;
-			int drawMaxY = 0;
+			ImageSliceHelper slice = new ImageSliceHelper(file, l, t, r, b);
+			slice.getImageBC();
 
-			if (l > 0 && t > 0)
-			{
-				drawX = rect.x;
-				drawY = rect.y;
-				graphics.drawImage(image, 0, 0, l, t, drawX, drawY, l, t);
-			}
-			if (t > 0 && w > 0)
-			{
-				drawX = rect.x + l;
-				drawY = rect.y;
-				drawMaxX = rect.x + rect.width - r;
-				while (drawX < drawMaxX)
-				{
-					drawW = Math.min(w, drawMaxX - drawX);
-					drawH = t;
-					if (drawW > 0 && drawH > 0)
-					{
-						graphics.drawImage(image, l, 0, drawW, drawH, drawX, drawY, drawW, drawH);
-					}
-					drawX += w;
-				}
-			}
-			if (r > 0 && t > 0)
-			{
-				drawX = rect.x + rect.width - r;
-				drawY = rect.y;
-				graphics.drawImage(image, imgW - r, 0, r, t, drawX, drawY, r, t);
-			}
+			Date imageSlice = new Date();
+			System.out.println("    Í¼ÏñSlice:" + (imageSlice.getTime() - begin.getTime()));
+			begin = imageSlice;
 
-			if (l > 0 && h > 0)
-			{
-				drawX = rect.x;
-				drawY = rect.y + t;
-				drawMaxY = rect.y + rect.height - b;
-				while (drawY < drawMaxY)
-				{
-					drawW = l;
-					drawH = Math.min(h, drawMaxY - drawY);
-					if (drawW > 0 && drawH > 0)
-					{
-						graphics.drawImage(image, 0, t, drawW, drawH, drawX, drawY, drawW, drawH);
-					}
-					drawY += h;
-				}
-			}
-			if (w > 0 && h > 0)
-			{
-				drawX = rect.x + l;
-				drawY = rect.y + t;
-				drawMaxX = rect.x + rect.width - r;
-				drawMaxY = rect.y + rect.height - b;
-				while (drawY < drawMaxY)
-				{
-					while (drawX < drawMaxX)
-					{
-						drawW = Math.min(w, drawMaxX - drawX);
-						drawH = Math.min(h, drawMaxY - drawY);
-						if (drawW > 0 && drawH > 0)
-						{
-							graphics.drawImage(image, l, t, drawW, drawH, drawX, drawY, drawW, drawH);
-						}
-						drawX += w;
-					}
-					drawX = rect.x + l;
-					drawY += h;
-				}
-			}
-			if (r > 0 && h > 0)
-			{
-				drawX = rect.x + rect.width - r;
-				drawY = rect.y + t;
-				drawMaxY = rect.y + rect.height - b;
-				while (drawY < drawMaxY)
-				{
-					drawW = r;
-					drawH = Math.min(h, drawMaxY - drawY);
-					if (drawW > 0 && drawH > 0)
-					{
-						graphics.drawImage(image, imgW - r, t, drawW, drawH, drawX, drawY, drawW, drawH);
-					}
-					drawY += h;
-				}
-			}
+			graphics.pushState();
 
-			if (l > 0 && b > 0)
+			try
 			{
-				drawX = rect.x;
-				drawY = rect.y + rect.height - b;
-				graphics.drawImage(image, 0, imgH - b, l, b, drawX, drawY, l, b);
-			}
-			if (w > 0 && b > 0)
-			{
-				drawX = rect.x + l;
-				drawY = rect.y + rect.height - b;
-				drawMaxX = rect.x + rect.width - r;
-				while (drawX < drawMaxX)
+				graphics.translate(rect.x, rect.y);
+
+				if (l > 0 && t > 0)
 				{
-					drawW = Math.min(w, drawMaxX - drawX);
-					drawH = b;
-					if (drawW > 0 && drawH > 0)
-					{
-						graphics.drawImage(image, l, imgH - b, drawW, drawH, drawX, drawY, drawW, drawH);
-					}
-					drawX += w;
+					paintPatter(graphics, slice.getImageTL(), 0, 0, l, t);
+				}
+				if (t > 0 && w > 0)
+				{
+					paintPatter(graphics, slice.getImageTC(), l, 0, rect.width - l - r, t);
+				}
+				if (r > 0 && t > 0)
+				{
+					paintPatter(graphics, slice.getImageTR(), rect.width - r, 0, r, t);
+				}
+
+				if (l > 0 && h > 0)
+				{
+					paintPatter(graphics, slice.getImageCL(), 0, t, l, rect.height - t - b);
+				}
+				if (w > 0 && h > 0)
+				{
+					paintPatter(graphics, slice.getImageCC(), l, t, rect.width - l - r, rect.height - t - b);
+				}
+				if (r > 0 && h > 0)
+				{
+					paintPatter(graphics, slice.getImageCR(), rect.width - r, t, r, rect.height - t - b);
+				}
+
+				if (l > 0 && b > 0)
+				{
+					paintPatter(graphics, slice.getImageBL(), 0, rect.height - b, l, b);
+				}
+				if (w > 0 && b > 0)
+				{
+					paintPatter(graphics, slice.getImageBC(), l, rect.height - b, rect.width - l - r, b);
+				}
+				if (r > 0 && b > 0)
+				{
+					paintPatter(graphics, slice.getImageBR(), rect.width - r, rect.height - b, r, b);
 				}
 			}
-			if (r > 0 && b > 0)
+			finally
 			{
-				drawX = rect.x + rect.width - r;
-				drawY = rect.y + rect.height - b;
-				graphics.drawImage(image, imgW - r, imgH - b, r, b, drawX, drawY, r, b);
+				graphics.popState();
 			}
 		}
 
 		image.dispose();
 		image = null;
+
+		Date drawOK = new Date();
+		System.out.println("    Í¼Ïñ»æÖÆ(" + slice + "):" + (drawOK.getTime() - begin.getTime()));
+		begin = drawOK;
+	}
+
+	private void paintPatter(Graphics graphics, Image img, int x, int y, int w, int h)
+	{
+		if (img != null && w > 0 && h > 0)
+		{
+			Pattern pattern = new Pattern(Display.getCurrent(), img);
+
+			graphics.pushState();
+			graphics.translate(x, y);
+
+			graphics.setBackgroundPattern(pattern);
+			graphics.fillRectangle(0, 0, w, h);
+			graphics.setBackgroundPattern(null);
+			pattern.dispose();
+
+			graphics.popState();
+		}
 	}
 }

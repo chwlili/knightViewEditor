@@ -42,7 +42,12 @@ public class DefineFormatTag extends DefineTag
 		{
 			try
 			{
-				return Integer.parseInt(getAttributeValue("color"));
+				String color_txt=getAttributeValue("color");
+				if(color_txt.indexOf("0x")==0)
+				{
+					color_txt=color_txt.substring(2);
+				}
+				return Integer.parseInt(color_txt,16);
 			}
 			catch(Exception exception)
 			{

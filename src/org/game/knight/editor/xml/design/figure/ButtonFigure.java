@@ -171,6 +171,7 @@ public class ButtonFigure extends ImageFigure
 	{
 		// downed = false;
 		repaint();
+		System.out.println("..");
 	}
 
 	/**
@@ -234,6 +235,7 @@ public class ButtonFigure extends ImageFigure
 		int indent = 0;
 		int leftMargin = 0;
 		int rightMargin = 0;
+		int leading = 0;
 		FontData fontData = new FontData();
 		int rgb = 0;
 		if (tag != null)
@@ -242,6 +244,7 @@ public class ButtonFigure extends ImageFigure
 			indent = tag.getIndent();
 			leftMargin = tag.getLeftMargin();
 			rightMargin = tag.getRightMargin();
+			leading = tag.getLeading();
 			rgb = tag.getColor();
 
 			if (tag.getFont() != null && tag.getFont().isEmpty() == false)
@@ -250,34 +253,34 @@ public class ButtonFigure extends ImageFigure
 			}
 			else
 			{
-				fontData.setName("ËÎÌו");
+				//fontData.setName("ËÎÌו");
 			}
-			
-			fontData.setHeight(tag.getSize());
+
+			fontData.setHeight((int)(tag.getSize()/96f/(1f/72f)));
 			fontData.setStyle((tag.isBold() ? SWT.BOLD : 0) | (tag.isItalic() ? SWT.ITALIC : 0));
 		}
 
 		graphics.setFont(new Font(Display.getCurrent(), fontData));
 		graphics.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
-		
-		graphics.drawText(getLabel(),0,0);
-		
-//		Font font = new Font(Display.getCurrent(), fontData);
-//		Color color = new Color(Display.getCurrent(), (rgb >>> 24) & 0xFF, (rgb >>> 16) & 0xFF, (rgb >>> 8) & 0xFF);
-//
-//		TextLayout layout = new TextLayout(Display.getCurrent());
-//		layout.setWidth(getBounds().width - leftMargin - rightMargin);
-//		layout.setAlignment(alignment);
-//		layout.setIndent(indent);
-//		layout.setFont(font);
-//		layout.setText(getLabel());
-//		layout.setStyle(new TextStyle(font, color, null), 0, label.length());
-//
-//		graphics.drawTextLayout(layout, leftMargin, 0);
 
-		//color.dispose();
-		//font.dispose();
-		//layout.dispose();
+		// graphics.drawText(getLabel(),getBounds().x,getBounds().y);
+
+		Font font = new Font(Display.getCurrent(), fontData);
+		Color color = new Color(Display.getCurrent(), (rgb >>> 16) & 0xFF, (rgb >>> 8) & 0xFF, (rgb >>> 0) & 0xFF);
+
+		TextLayout layout = new TextLayout(Display.getCurrent());
+		layout.setWidth(getBounds().width - leftMargin - rightMargin);
+		layout.setAlignment(alignment);
+		layout.setIndent(indent);
+		layout.setFont(font);
+		layout.setText(getLabel());
+		layout.setStyle(new TextStyle(font, color, null), 0, label.length());
+		layout.setSpacing(leading);
+		graphics.drawTextLayout(layout, getBounds().x + leftMargin, (int)(getBounds().y+(getBounds().height-fontData.getHeight()*(1f/72f)*96f)/2));
+
+		color.dispose();
+		font.dispose();
+		layout.dispose();
 	}
 
 	/**
