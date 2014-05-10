@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
 import org.game.knight.ast.AST;
 import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.AbsTag;
@@ -18,16 +20,40 @@ import org.game.knight.ast.IdRef;
 public class TagHelper
 {
 	private DefineControlTag tag;
-	
+
 	/**
 	 * 构造函数
+	 * 
 	 * @param tag
 	 */
 	public TagHelper(DefineControlTag tag)
 	{
-		this.tag=tag;
+		this.tag = tag;
 	}
-	
+
+	/**
+	 * 像素转换成点
+	 * 9pr = 9 * 1/72 * 96 = 12px
+	 * @param px
+	 * @return
+	 */
+	public static int pxToPoint(int px)
+	{
+		return (int)Math.ceil((px / (Display.getCurrent().getDPI().x * (1f / 72f))));
+		//return (int) (px / (Display.getCurrent().getDPI().x * (1f / 72f)));
+	}
+
+	/**
+	 * 颜色转换成RGB
+	 * 
+	 * @param color
+	 * @return
+	 */
+	public static RGB colorToRGB(int color)
+	{
+		return new RGB((color >>> 16) & 0xFF, (color >>> 8) & 0xFF, color & 0xFF);
+	}
+
 	/**
 	 * 读取int值
 	 * 
@@ -110,6 +136,7 @@ public class TagHelper
 
 	/**
 	 * 按属性查找引用文件
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -139,6 +166,7 @@ public class TagHelper
 
 	/**
 	 * 按属性查找文本内容
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -157,9 +185,9 @@ public class TagHelper
 					{
 						AST ast = ASTManager.getAST(def.getFile());
 						AbsTag tag = ast.getTagBy(def.getOffset());
-						if(tag instanceof DefineTextTag)
+						if (tag instanceof DefineTextTag)
 						{
-							DefineTextTag txt=(DefineTextTag)tag;
+							DefineTextTag txt = (DefineTextTag) tag;
 							return txt.getText();
 						}
 					}
@@ -176,9 +204,10 @@ public class TagHelper
 		}
 		return "";
 	}
-	
+
 	/**
 	 * 按属性查找字体内容
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -197,9 +226,9 @@ public class TagHelper
 					{
 						AST ast = ASTManager.getAST(def.getFile());
 						AbsTag tag = ast.getTagBy(def.getOffset());
-						if(tag instanceof DefineFormatTag)
+						if (tag instanceof DefineFormatTag)
 						{
-							return (DefineFormatTag)tag;
+							return (DefineFormatTag) tag;
 						}
 					}
 					catch (CoreException e)
@@ -216,14 +245,15 @@ public class TagHelper
 		return null;
 	}
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	//
 	// 基本定位属性
 	//
-	//----------------------------------------------------------------------
-	
+	// ----------------------------------------------------------------------
+
 	/**
 	 * X坐标
+	 * 
 	 * @return
 	 */
 	public int getX()
@@ -233,6 +263,7 @@ public class TagHelper
 
 	/**
 	 * Y坐标
+	 * 
 	 * @return
 	 */
 	public int getY()
@@ -242,15 +273,17 @@ public class TagHelper
 
 	/**
 	 * 宽度
+	 * 
 	 * @return
 	 */
 	public int getW()
 	{
 		return getIntValue("width");
 	}
-	
+
 	/**
 	 * 高度
+	 * 
 	 * @return
 	 */
 	public int getH()
@@ -258,14 +291,15 @@ public class TagHelper
 		return getIntValue("height");
 	}
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	//
 	// 扩展定位属性
 	//
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 
 	/**
 	 * 是否有left
+	 * 
 	 * @return
 	 */
 	public boolean hasLeft()
@@ -275,6 +309,7 @@ public class TagHelper
 
 	/**
 	 * left
+	 * 
 	 * @return
 	 */
 	public double getLeft()
@@ -284,6 +319,7 @@ public class TagHelper
 
 	/**
 	 * 是否有right
+	 * 
 	 * @return
 	 */
 	public boolean hasRight()
@@ -293,6 +329,7 @@ public class TagHelper
 
 	/**
 	 * right
+	 * 
 	 * @return
 	 */
 	public double getRight()
@@ -301,7 +338,8 @@ public class TagHelper
 	}
 
 	/**
-	 * 是否有top 
+	 * 是否有top
+	 * 
 	 * @return
 	 */
 	public boolean hasTop()
@@ -311,6 +349,7 @@ public class TagHelper
 
 	/**
 	 * top
+	 * 
 	 * @return
 	 */
 	public double getTop()
@@ -320,6 +359,7 @@ public class TagHelper
 
 	/**
 	 * 是否有bottom
+	 * 
 	 * @return
 	 */
 	public boolean hasBottom()
@@ -329,6 +369,7 @@ public class TagHelper
 
 	/**
 	 * bottom
+	 * 
 	 * @return
 	 */
 	public double getBottom()
@@ -338,6 +379,7 @@ public class TagHelper
 
 	/**
 	 * 是否有center
+	 * 
 	 * @return
 	 */
 	public boolean hasCenter()
@@ -347,6 +389,7 @@ public class TagHelper
 
 	/**
 	 * center
+	 * 
 	 * @return
 	 */
 	public double getCenter()
@@ -356,6 +399,7 @@ public class TagHelper
 
 	/**
 	 * 是否有middle
+	 * 
 	 * @return
 	 */
 	public boolean hasMiddle()
@@ -365,6 +409,7 @@ public class TagHelper
 
 	/**
 	 * middle
+	 * 
 	 * @return
 	 */
 	public double getMiddle()

@@ -1,13 +1,5 @@
 package org.game.knight.editor.xml.design.figure;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Date;
-
-import javax.imageio.ImageIO;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.Figure;
@@ -87,12 +79,9 @@ public class ImageFigure extends Figure
 		bottom = value;
 	}
 
-	private static int drawCount = 0;
-
 	@Override
 	protected void paintFigure(Graphics graphics)
 	{
-
 		Rectangle rect = super.getBounds();
 
 		IFile file = getFile();
@@ -100,10 +89,6 @@ public class ImageFigure extends Figure
 		{
 			return;
 		}
-		Date begin = new Date();
-		System.out.println("ÖØ»æ:" + drawCount);
-		System.out.println("    " + getFile().getLocation().toString() + ")");
-		drawCount++;
 
 		Image image = null;
 
@@ -115,9 +100,6 @@ public class ImageFigure extends Figure
 		{
 			e.printStackTrace();
 		}
-		Date imageOK = new Date();
-		System.out.println("    Í¼Ïñ½¨Á¢:" + (imageOK.getTime() - begin.getTime()));
-		begin = imageOK;
 
 		if (image == null)
 		{
@@ -154,10 +136,6 @@ public class ImageFigure extends Figure
 
 			ImageSliceHelper slice = new ImageSliceHelper(file, l, t, r, b);
 			slice.getImageBC();
-
-			Date imageSlice = new Date();
-			System.out.println("    Í¼ÏñSlice:" + (imageSlice.getTime() - begin.getTime()));
-			begin = imageSlice;
 
 			graphics.pushState();
 
@@ -212,10 +190,6 @@ public class ImageFigure extends Figure
 
 		image.dispose();
 		image = null;
-
-		Date drawOK = new Date();
-		System.out.println("    Í¼Ïñ»æÖÆ(" + slice + "):" + (drawOK.getTime() - begin.getTime()));
-		begin = drawOK;
 	}
 
 	private void paintPatter(Graphics graphics, Image img, int x, int y, int w, int h)
