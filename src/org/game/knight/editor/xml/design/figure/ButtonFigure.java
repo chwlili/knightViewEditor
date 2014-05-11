@@ -2,35 +2,51 @@ package org.game.knight.editor.xml.design.figure;
 
 import java.util.Hashtable;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.Figure;
+import org.eclipse.draw2d.GridData;
+import org.eclipse.draw2d.GridLayout;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.MouseMotionListener;
-import org.eclipse.swt.SWT;
+import org.eclipse.draw2d.XYLayout;
+import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.TextLayout;
-import org.eclipse.swt.graphics.TextStyle;
-import org.eclipse.swt.widgets.Display;
-import org.game.knight.ast.DefineFormatTag;
 
-public class ButtonFigure extends ImageFigure
+public class ButtonFigure extends Figure
 {
+	private ImageFigure backView;
+	private LabelFigure labelView;
+	
 	private boolean downed = false;
 	private boolean entered = false;
 
 	private String label = "";
-	private Hashtable<String, IFile> imageTable = new Hashtable<String, IFile>();
-	private Hashtable<String, DefineFormatTag> formatTable = new Hashtable<String, DefineFormatTag>();
+	private Hashtable<String, SliceImage> imageTable = new Hashtable<String, SliceImage>();
+	private Hashtable<String,Font> fontTable=new Hashtable<String, Font>();
+	private Hashtable<String,Color> colorTable=new Hashtable<String, Color>();
 
 	public ButtonFigure()
 	{
+		backView=new ImageFigure();
+		labelView=new LabelFigure();
+		add(backView);
+		add(labelView);
+		
 		addMouseListener(mouseListener);
 		addMouseMotionListener(motionListener);
 	}
 
+	@Override
+	public void setBounds(Rectangle rect)
+	{
+		super.setBounds(rect);
+		
+		backView.setBounds(rect);
+		labelView.setBounds(rect);
+	}
+	
 	/**
 	 * 获取标签
 	 * 
@@ -48,7 +64,16 @@ public class ButtonFigure extends ImageFigure
 	 */
 	public void setLabel(String value)
 	{
-		label = value;
+		if(value==null)
+		{
+			value="";
+		}
+		if(!value.equals(label))
+		{
+			label=value;
+			labelView.setText(label);
+			refresh();
+		}
 	}
 
 	/**
@@ -57,7 +82,7 @@ public class ButtonFigure extends ImageFigure
 	 * @param key
 	 * @param file
 	 */
-	public void addImage(String key, IFile file)
+	public void addImage(String key, SliceImage file)
 	{
 		if (key != null)
 		{
@@ -67,31 +92,8 @@ public class ButtonFigure extends ImageFigure
 			{
 				imageTable.put(key, file);
 			}
-			repaint();
+			refresh();
 		}
-	}
-
-	/**
-	 * 删除图像
-	 * 
-	 * @param key
-	 */
-	public void delImage(String key)
-	{
-		if (key != null)
-		{
-			imageTable.remove(key);
-			repaint();
-		}
-	}
-
-	/**
-	 * 删除所有图像
-	 */
-	public void removeAllImage()
-	{
-		imageTable.clear();
-		repaint();
 	}
 
 	/**
@@ -100,41 +102,48 @@ public class ButtonFigure extends ImageFigure
 	 * @param key
 	 * @param format
 	 */
-	public void addFormat(String key, DefineFormatTag format)
+	public void addFormat(String key, Font format)
 	{
 		if (key != null)
 		{
-			formatTable.remove(key);
+			fontTable.remove(key);
 
 			if (format != null)
 			{
-				formatTable.put(key, format);
+				fontTable.put(key, format);
 			}
-			repaint();
+			refresh();
 		}
 	}
-
+	
 	/**
-	 * 删除字体
-	 * 
+	 * 添加颜色
 	 * @param key
+	 * @param color
 	 */
-	public void delFormat(String key)
+	public void addColor(String key,Color color)
 	{
-		if (key != null)
+		if(key!=null)
 		{
-			formatTable.remove(key);
-			repaint();
+			colorTable.remove(key);
+			
+			if(color!=null)
+			{
+				colorTable.put(key, color);
+			}
+			refresh();
 		}
 	}
 
 	/**
 	 * 删除所有格式
 	 */
-	public void removeAllFormat()
+	public void removeAllResource()
 	{
-		formatTable.clear();
-		repaint();
+		imageTable.clear();
+		fontTable.clear();
+		colorTable.clear();
+		refresh();
 	}
 
 	/**
@@ -143,7 +152,7 @@ public class ButtonFigure extends ImageFigure
 	protected void handleMouseEntered()
 	{
 		entered = true;
-		repaint();
+		refresh();
 	}
 
 	/**
@@ -152,7 +161,7 @@ public class ButtonFigure extends ImageFigure
 	protected void handleMouseExit()
 	{
 		entered = false;
-		repaint();
+		refresh();
 	}
 
 	/**
@@ -161,7 +170,7 @@ public class ButtonFigure extends ImageFigure
 	protected void handleMouseDown()
 	{
 		// downed = true;
-		repaint();
+		refresh();
 	}
 
 	/**
@@ -170,117 +179,55 @@ public class ButtonFigure extends ImageFigure
 	protected void handleMouseUp()
 	{
 		// downed = false;
-		repaint();
-		System.out.println("..");
+		refresh();
 	}
 
 	/**
 	 * 计算状态
 	 */
-	protected void measureState()
+	protected void refresh()
 	{
+		SliceImage img=null;
+		Font font=null;
+		Color color=null;
+		
 		if (downed)
 		{
-			setFile(imageTable.get("3") != null ? imageTable.get("3") : imageTable.get("1"));
+			img=imageTable.get("3");
+			font=fontTable.get("3");
+			color=colorTable.get("3");
 		}
 		else
 		{
 			if (entered)
 			{
-				setFile(imageTable.get("2") != null ? imageTable.get("2") : imageTable.get("1"));
-			}
-			else
-			{
-				setFile(imageTable.get("1"));
+				img=imageTable.get("2");
+				font=fontTable.get("2");
+				color=colorTable.get("2");
 			}
 		}
-	}
-
-	/**
-	 * 重绘
-	 */
-	@Override
-	public void repaint(int x, int y, int w, int h)
-	{
-		measureState();
-		super.repaint(x, y, w, h);
-	}
-
-	@Override
-	protected void paintFigure(Graphics graphics)
-	{
-		super.paintFigure(graphics);
-
-		if (label == null || label.isEmpty())
+		
+		if(img==null)
 		{
-			return;
+			img=imageTable.get("1");
 		}
-
-		DefineFormatTag tag = null;
-		if (downed)
+		
+		if(font==null)
 		{
-			tag = formatTable.get("3");
+			font=fontTable.get("1");
 		}
-		else if (entered)
+		
+		if(color==null)
 		{
-			tag = formatTable.get("2");
+			color=colorTable.get("1");
 		}
-
-		if (tag == null)
-		{
-			tag = formatTable.get("1");
-		}
-
-		int alignment = SWT.LEFT;
-		int indent = 0;
-		int leftMargin = 0;
-		int rightMargin = 0;
-		int leading = 0;
-		FontData fontData = new FontData();
-		int rgb = 0;
-		if (tag != null)
-		{
-			alignment = tag.getAlign().equals("left") ? SWT.LEFT : (tag.getAlign().equals("center") ? SWT.CENTER : SWT.RIGHT);
-			indent = tag.getIndent();
-			leftMargin = tag.getLeftMargin();
-			rightMargin = tag.getRightMargin();
-			leading = tag.getLeading();
-			rgb = tag.getColor();
-
-			if (tag.getFont() != null && tag.getFont().isEmpty() == false)
-			{
-				fontData.setName(tag.getFont());
-			}
-			else
-			{
-				//fontData.setName("宋体");
-			}
-
-			fontData.setHeight((int)(tag.getSize()/96f/(1f/72f)));
-			fontData.setStyle((tag.isBold() ? SWT.BOLD : 0) | (tag.isItalic() ? SWT.ITALIC : 0));
-		}
-
-		graphics.setFont(new Font(Display.getCurrent(), fontData));
-		graphics.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
-
-		// graphics.drawText(getLabel(),getBounds().x,getBounds().y);
-
-		Font font = new Font(Display.getCurrent(), fontData);
-		Color color = new Color(Display.getCurrent(), (rgb >>> 16) & 0xFF, (rgb >>> 8) & 0xFF, (rgb >>> 0) & 0xFF);
-
-		TextLayout layout = new TextLayout(Display.getCurrent());
-		layout.setWidth(getBounds().width - leftMargin - rightMargin);
-		layout.setAlignment(alignment);
-		layout.setIndent(indent);
-		layout.setFont(font);
-		layout.setText(getLabel());
-		layout.setStyle(new TextStyle(font, color, null), 0, label.length());
-		layout.setSpacing(leading);
-		graphics.drawTextLayout(layout, getBounds().x + leftMargin, (int)(getBounds().y+(getBounds().height-fontData.getHeight()*(1f/72f)*96f)/2));
-
-		color.dispose();
-		font.dispose();
-		layout.dispose();
+		
+		backView.setImage(img);
+		labelView.setFont(font);
+		labelView.setForegroundColor(color);
+		
+		backView.repaint();
+		labelView.repaint();
 	}
 
 	/**
