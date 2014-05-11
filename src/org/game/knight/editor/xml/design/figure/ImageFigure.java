@@ -41,8 +41,8 @@ public class ImageFigure extends Figure
 			int imgH = img.getOriginH();
 
 			int l = img.getLeftLength();
-			int r = img.getTopLength();
-			int t = img.getRightLength();
+			int r = img.getRightLength();
+			int t = img.getTopLength();
 			int b = img.getBottomLength();
 			int w = imgW - l - r;
 			int h = imgH - t - b;

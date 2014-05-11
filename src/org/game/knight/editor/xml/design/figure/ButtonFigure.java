@@ -3,13 +3,12 @@ package org.game.knight.editor.xml.design.figure;
 import java.util.Hashtable;
 
 import org.eclipse.draw2d.Figure;
-import org.eclipse.draw2d.GridData;
-import org.eclipse.draw2d.GridLayout;
+import org.eclipse.draw2d.FigureUtilities;
+import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.MouseMotionListener;
-import org.eclipse.draw2d.XYLayout;
-import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -17,23 +16,23 @@ import org.eclipse.swt.graphics.Font;
 public class ButtonFigure extends Figure
 {
 	private ImageFigure backView;
-	private LabelFigure labelView;
-	
+	private Label labelView;
+
 	private boolean downed = false;
 	private boolean entered = false;
 
 	private String label = "";
 	private Hashtable<String, SliceImage> imageTable = new Hashtable<String, SliceImage>();
-	private Hashtable<String,Font> fontTable=new Hashtable<String, Font>();
-	private Hashtable<String,Color> colorTable=new Hashtable<String, Color>();
+	private Hashtable<String, Font> fontTable = new Hashtable<String, Font>();
+	private Hashtable<String, Color> colorTable = new Hashtable<String, Color>();
 
 	public ButtonFigure()
 	{
-		backView=new ImageFigure();
-		labelView=new LabelFigure();
+		backView = new ImageFigure();
+		labelView = new Label();
 		add(backView);
 		add(labelView);
-		
+
 		addMouseListener(mouseListener);
 		addMouseMotionListener(motionListener);
 	}
@@ -42,11 +41,10 @@ public class ButtonFigure extends Figure
 	public void setBounds(Rectangle rect)
 	{
 		super.setBounds(rect);
-		
-		backView.setBounds(rect);
-		labelView.setBounds(rect);
+
+		refresh();
 	}
-	
+
 	/**
 	 * 获取标签
 	 * 
@@ -64,13 +62,13 @@ public class ButtonFigure extends Figure
 	 */
 	public void setLabel(String value)
 	{
-		if(value==null)
+		if (value == null)
 		{
-			value="";
+			value = "";
 		}
-		if(!value.equals(label))
+		if (!value.equals(label))
 		{
-			label=value;
+			label = value;
 			labelView.setText(label);
 			refresh();
 		}
@@ -115,19 +113,20 @@ public class ButtonFigure extends Figure
 			refresh();
 		}
 	}
-	
+
 	/**
 	 * 添加颜色
+	 * 
 	 * @param key
 	 * @param color
 	 */
-	public void addColor(String key,Color color)
+	public void addColor(String key, Color color)
 	{
-		if(key!=null)
+		if (key != null)
 		{
 			colorTable.remove(key);
-			
-			if(color!=null)
+
+			if (color != null)
 			{
 				colorTable.put(key, color);
 			}
@@ -187,45 +186,54 @@ public class ButtonFigure extends Figure
 	 */
 	protected void refresh()
 	{
-		SliceImage img=null;
-		Font font=null;
-		Color color=null;
-		
+		SliceImage img = null;
+		Font font = null;
+		Color color = null;
+
 		if (downed)
 		{
-			img=imageTable.get("3");
-			font=fontTable.get("3");
-			color=colorTable.get("3");
+			img = imageTable.get("3");
+			font = fontTable.get("3");
+			color = colorTable.get("3");
 		}
 		else
 		{
 			if (entered)
 			{
-				img=imageTable.get("2");
-				font=fontTable.get("2");
-				color=colorTable.get("2");
+				img = imageTable.get("2");
+				font = fontTable.get("2");
+				color = colorTable.get("2");
 			}
 		}
-		
-		if(img==null)
+
+		if (img == null)
 		{
-			img=imageTable.get("1");
+			img = imageTable.get("1");
 		}
-		
-		if(font==null)
+
+		if (font == null)
 		{
-			font=fontTable.get("1");
+			font = fontTable.get("1");
 		}
-		
-		if(color==null)
+
+		if (color == null)
 		{
-			color=colorTable.get("1");
+			color = colorTable.get("1");
 		}
-		
+
 		backView.setImage(img);
 		labelView.setFont(font);
 		labelView.setForegroundColor(color);
-		
+
+		Rectangle rect = getBounds();
+		backView.setBounds(rect);
+		labelView.setBounds(rect);
+		if(label!= null && labelView.getFont()!=null)
+		{
+			Dimension size = FigureUtilities.getTextExtents(label, labelView.getFont());
+			labelView.setBounds(new Rectangle(rect.x, rect.y+(rect.height-size.height)/2, rect.width, size.height));
+		}
+
 		backView.repaint();
 		labelView.repaint();
 	}
