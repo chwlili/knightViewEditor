@@ -1,6 +1,7 @@
 package org.game.knight.editor.xml.design;
 
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
@@ -33,11 +34,11 @@ public class LabelPart extends ControlPart
 		if (fontDescriptor != null)
 		{
 			getViewer().getResourceManager().destroyFont(fontDescriptor);
-			fontDescriptor=null;
+			fontDescriptor = null;
 		}
 		view.setFont(null);
-		
-		font=null;
+
+		font = null;
 	}
 
 	private void releaseColor()
@@ -45,17 +46,17 @@ public class LabelPart extends ControlPart
 		if (colorDescriptor != null)
 		{
 			getViewer().getResourceManager().destroyColor(colorDescriptor);
-			colorDescriptor=null;
+			colorDescriptor = null;
 		}
 		view.setForegroundColor(null);
-		
-		rgb=null;
+
+		rgb = null;
 	}
 
 	@Override
 	protected IFigure createFigure()
 	{
-		view = new LabelFigure();
+		view = new LabelFigure(getViewer().getResourceManager());
 		return view;
 	}
 
@@ -78,6 +79,8 @@ public class LabelPart extends ControlPart
 			font.setStyle((tag.isBold() ? SWT.BOLD : 0) | (tag.isItalic() ? SWT.ITALIC : 0));
 
 			rgb = TagHelper.colorToRGB(tag.getColor());
+			
+			this.view.setHorizontalAligment("center".equals(tag.getAlign()) ? PositionConstants.CENTER : ("right".equals(tag.getAlign()) ? PositionConstants.RIGHT : PositionConstants.LEFT));
 		}
 
 		if (!font.equals(this.font))
@@ -93,9 +96,9 @@ public class LabelPart extends ControlPart
 
 		this.view.setForegroundColor(getViewer().getResourceManager().createColor(colorDescriptor));
 		this.view.setFont(getViewer().getResourceManager().createFont(fontDescriptor));
-		this.view.setText(getTagHelper().findTextByAttribute("text"));
+		this.view.setText(getTagHelper().findTextByAttribute("text"), "true".equals(getTagHelper().getStringValue("html")));
 		
-		this.rgb=rgb;
-		this.font=font;
+		this.rgb = rgb;
+		this.font = font;
 	}
 }
