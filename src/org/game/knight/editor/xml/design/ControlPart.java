@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.RectangleFigure;
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
@@ -19,22 +20,22 @@ import org.game.knight.ast.DefineControlTag;
 public class ControlPart extends AbstractGraphicalEditPart
 {
 	private TagHelper helper;
-	
+
 	private int parentW = 0;
 	private int parentH = 0;
 	private int selfW = 0;
 	private int selfH = 0;
 
-	
 	/**
 	 * 获取模型
+	 * 
 	 * @return
 	 */
 	protected DefineControlTag getTag()
 	{
-		return (DefineControlTag)getModel();
+		return (DefineControlTag) getModel();
 	}
-	
+
 	/**
 	 * 获取模型辅助器
 	 * 
@@ -48,7 +49,7 @@ public class ControlPart extends AbstractGraphicalEditPart
 		}
 		return helper;
 	}
-	
+
 	/**
 	 * 获取模型子级
 	 */
@@ -89,6 +90,12 @@ public class ControlPart extends AbstractGraphicalEditPart
 			{
 				return super.getChangeConstraintCommand(request);
 			}
+
+			@Override
+			protected Command createChangeConstraintCommand(ChangeBoundsRequest request, EditPart child, Object constraint)
+			{
+				return super.createChangeConstraintCommand(request, child, constraint);
+			}
 		});
 	}
 
@@ -107,6 +114,7 @@ public class ControlPart extends AbstractGraphicalEditPart
 
 	/**
 	 * 重设大小
+	 * 
 	 * @param w
 	 * @param h
 	 */
@@ -124,8 +132,8 @@ public class ControlPart extends AbstractGraphicalEditPart
 	@Override
 	protected void refreshVisuals()
 	{
-		TagHelper tag=getTagHelper();
-		
+		TagHelper tag = getTagHelper();
+
 		double x = tag.getX();
 		double y = tag.getY();
 		double w = tag.getW();

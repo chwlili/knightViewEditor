@@ -193,9 +193,18 @@ public class LabelFigure extends FlowPage
 
 		ArrayList<Object> segments = new ArrayList<Object>();
 
-		fonts.add(new FontData("", TagHelper.pxToPoint(12), 0));
-		rgbs.add(new RGB(0, 0, 0));
-		segments.add(new Format(fonts.lastElement(),rgbs.lastElement()));
+		if(getFont()!=null)
+		{
+			fonts.add(getFont().getFontData()[0]);
+			rgbs.add(getForegroundColor().getRGB());
+			segments.add(new Format(fonts.lastElement(),rgbs.lastElement()));
+		}
+		else
+		{
+			fonts.add(new FontData("", TagHelper.pxToPoint(12), 0));
+			rgbs.add(new RGB(0, 0, 0));
+			segments.add(new Format(fonts.lastElement(),rgbs.lastElement()));
+		}
 		
 		int from = 0;
 		while (from < text.length())
