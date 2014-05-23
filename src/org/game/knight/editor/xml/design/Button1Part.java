@@ -44,7 +44,7 @@ public class Button1Part extends ControlPart
 	protected IFigure createFigure()
 	{
 		view = new ButtonFigure();
-
+		
 		return view;
 	}
 

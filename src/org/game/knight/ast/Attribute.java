@@ -52,4 +52,8 @@ public class Attribute
 	{
 		return value.text;
 	}
+	public void setValue(String value)
+	{
+		this.value.text=value;
+	}
 }

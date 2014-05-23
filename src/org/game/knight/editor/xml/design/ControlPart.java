@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.RectangleFigure;
+import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.commands.Command;
@@ -94,6 +96,20 @@ public class ControlPart extends AbstractGraphicalEditPart
 			@Override
 			protected Command createChangeConstraintCommand(ChangeBoundsRequest request, EditPart child, Object constraint)
 			{
+				Rectangle rect_child=((ControlPart)child).getFigure().getBounds();
+				Rectangle rect_parent=((ControlPart)child).getFigure().getParent().getBounds();
+				Rectangle rect_new=(Rectangle)constraint;
+				
+				DefineControlTag model=(DefineControlTag) ((ControlPart)child).getModel();
+				if(model.hasAttribute("width"))
+				{
+					model.getAttribute("width").setValue(rect_new.width+"");
+				}
+				if(model.hasAttribute("height"))
+				{
+					model.getAttribute("height").setValue(rect_new.height+"");
+				}
+				child.refresh();
 				return super.createChangeConstraintCommand(request, child, constraint);
 			}
 		});
@@ -106,6 +122,7 @@ public class ControlPart extends AbstractGraphicalEditPart
 	protected IFigure createFigure()
 	{
 		RectangleFigure rect = new RectangleFigure();
+		rect.setLayoutManager(new XYLayout());
 		rect.setAlpha(150);
 		rect.setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
 
