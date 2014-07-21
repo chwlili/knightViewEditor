@@ -28,9 +28,9 @@ import org.game.knight.editor.xml.action.LookFileAction;
 import org.game.knight.editor.xml.action.LookIdAction;
 import org.game.knight.editor.xml.action.RenameFileAction;
 import org.game.knight.editor.xml.action.RenameIdAction;
-import org.game.knight.editor.xml.design.TagInput;
 import org.game.knight.editor.xml.design.GefFactory;
 import org.game.knight.editor.xml.design.GefViewer;
+import org.game.knight.editor.xml.design.TagInput;
 import org.game.knight.refactor.MoveFileAction;
 import org.game.knight.search.SearchFileRefAction;
 import org.game.knight.search.SearchIdRefAction;
@@ -50,7 +50,7 @@ public class ViewEditor extends TextEditor
 
 		setSourceViewerConfiguration(new ViewEditorConfig());
 
-		setDocumentProvider(new ViewXmlProvider());
+		setDocumentProvider(ViewEditorHelper.createDocumentProvider());
 	}
 
 	public void selectRange(int offset, int length)
