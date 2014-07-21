@@ -39,6 +39,8 @@ public class AbsTag
 	
 	private Hashtable<String, Attribute> attributeTable;
 	
+	private ArrayList<ITagListener> listeners;
+	
 	/**
 	 * ¹¹Ôìº¯Êı
 	 * 
@@ -63,6 +65,35 @@ public class AbsTag
 			for (Attribute attribute : attributes)
 			{
 				attributeTable.put(attribute.getNameToken().text, attribute);
+			}
+		}
+	}
+	
+	public void addListener(ITagListener listener)
+	{
+		if(listeners==null)
+		{
+			listeners=new ArrayList<ITagListener>();
+		}
+		listeners.remove(listener);
+		listeners.add(listener);
+	}
+	
+	public void removeListener(ITagListener listener)
+	{
+		if(listeners!=null)
+		{
+			listeners.remove(listener);
+		}
+	}
+	
+	public void fireTagChanged()
+	{
+		if(listeners!=null)
+		{
+			for(ITagListener listener:listeners)
+			{
+				listener.onTagChanged();
 			}
 		}
 	}

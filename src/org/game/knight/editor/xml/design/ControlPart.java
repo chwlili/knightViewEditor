@@ -18,8 +18,9 @@ import org.eclipse.gef.requests.CreateRequest;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.game.knight.ast.DefineControlTag;
+import org.game.knight.ast.ITagListener;
 
-public class ControlPart extends AbstractGraphicalEditPart
+public class ControlPart extends AbstractGraphicalEditPart implements ITagListener
 {
 	private TagHelper helper;
 
@@ -28,6 +29,25 @@ public class ControlPart extends AbstractGraphicalEditPart
 	private int selfW = 0;
 	private int selfH = 0;
 
+	@Override
+	public void activate()
+	{
+		super.activate();
+		getTag().addListener(this);
+	}
+	
+	@Override
+	public void deactivate()
+	{
+		super.deactivate();
+		getTag().removeListener(this);
+	}
+
+	public void onTagChanged()
+	{
+		refreshVisuals();
+	}
+	
 	/**
 	 * 获取模型
 	 * 
@@ -96,23 +116,56 @@ public class ControlPart extends AbstractGraphicalEditPart
 			@Override
 			protected Command createChangeConstraintCommand(ChangeBoundsRequest request, EditPart child, Object constraint)
 			{
-				Rectangle rect_child=((ControlPart)child).getFigure().getBounds();
-				Rectangle rect_parent=((ControlPart)child).getFigure().getParent().getBounds();
-				Rectangle rect_new=(Rectangle)constraint;
-				
-				DefineControlTag model=(DefineControlTag) ((ControlPart)child).getModel();
-				if(model.hasAttribute("width"))
-				{
-					model.getAttribute("width").setValue(rect_new.width+"");
-				}
-				if(model.hasAttribute("height"))
-				{
-					model.getAttribute("height").setValue(rect_new.height+"");
-				}
-				child.refresh();
-				return super.createChangeConstraintCommand(request, child, constraint);
+				return new SetCommand((DefineControlTag) ((ControlPart) child).getModel(),(Rectangle)constraint);
 			}
 		});
+	}
+
+	private static class SetCommand extends Command
+	{
+		private DefineControlTag tag;
+		private int oldW;
+		private int oldH;
+		private Rectangle rect;
+		
+		public SetCommand(DefineControlTag tag,Rectangle rect)
+		{
+			this.tag=tag;
+			this.rect=rect;
+			
+			oldW=0;
+			if(tag.hasAttribute("width"))
+			{
+				oldW=Integer.parseInt(tag.getAttributeValue("width"));
+			}
+			oldH=0;
+			if(tag.hasAttribute("height"))
+			{
+				oldH=Integer.parseInt(tag.getAttributeValue("height"));
+			}
+		}
+
+		@Override
+		public void execute()
+		{
+			redo();
+		}
+
+		@Override
+		public void redo()
+		{
+			tag.getAttribute("width").setValue(rect.width+"");
+			tag.getAttribute("height").setValue(rect.height+"");
+			tag.fireTagChanged();
+		}
+
+		@Override
+		public void undo()
+		{
+			tag.getAttribute("width").setValue(oldW+"");
+			tag.getAttribute("height").setValue(oldH+"");
+			tag.fireTagChanged();
+		}
 	}
 
 	/**
