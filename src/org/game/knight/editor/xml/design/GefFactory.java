@@ -55,9 +55,13 @@ public class GefFactory implements EditPartFactory
 			{
 				part = new LabelPart();
 			}
-			else if (tagName.equals("box") || tagName.equals("window") || tagName.equals("confirm"))
+			else if (tagName.equals("box"))
 			{
 				part = new BoxPart();
+			}
+			else if(tagName.equals("window") || tagName.equals("confirm"))
+			{
+				part=new WindowPart();
 			}
 			else if (tagName.equals("button"))
 			{

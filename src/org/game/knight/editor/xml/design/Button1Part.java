@@ -47,6 +47,12 @@ public class Button1Part extends ControlPart
 		
 		return view;
 	}
+	
+	@Override
+	protected void createEditPolicies()
+	{
+		//super.createEditPolicies();
+	}
 
 	@Override
 	protected void refreshVisuals()

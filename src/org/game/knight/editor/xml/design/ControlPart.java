@@ -10,6 +10,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
+import org.eclipse.gef.Request;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
@@ -106,17 +107,28 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 			{
 				return null;
 			}
-
-			@Override
-			protected Command getChangeConstraintCommand(ChangeBoundsRequest request)
-			{
-				return super.getChangeConstraintCommand(request);
-			}
-
+			
 			@Override
 			protected Command createChangeConstraintCommand(ChangeBoundsRequest request, EditPart child, Object constraint)
 			{
 				return new SetCommand((DefineControlTag) ((ControlPart) child).getModel(),(Rectangle)constraint);
+			}
+			
+			@Override
+			protected Command getOrphanChildrenCommand(Request request)
+			{
+				return super.getOrphanChildrenCommand(request);
+			}
+			@Override
+			protected Command getResizeChildrenCommand(ChangeBoundsRequest request)
+			{
+				return super.getResizeChildrenCommand(request);
+			}
+			
+			@Override
+			public Command getCommand(Request request)
+			{
+				return super.getCommand(request);
 			}
 		});
 	}
@@ -124,6 +136,8 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 	private static class SetCommand extends Command
 	{
 		private DefineControlTag tag;
+		private int oldX;
+		private int oldY;
 		private int oldW;
 		private int oldH;
 		private Rectangle rect;
@@ -133,12 +147,22 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 			this.tag=tag;
 			this.rect=rect;
 			
+			oldX=0;
+			oldY=0;
 			oldW=0;
+			oldH=0;
+			if(tag.hasAttribute("x"))
+			{
+				oldX=Integer.parseInt(tag.getAttributeValue("x"));
+			}
+			if(tag.hasAttribute("y"))
+			{
+				oldY=Integer.parseInt(tag.getAttributeValue("y"));
+			}
 			if(tag.hasAttribute("width"))
 			{
 				oldW=Integer.parseInt(tag.getAttributeValue("width"));
 			}
-			oldH=0;
 			if(tag.hasAttribute("height"))
 			{
 				oldH=Integer.parseInt(tag.getAttributeValue("height"));
@@ -154,6 +178,8 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 		@Override
 		public void redo()
 		{
+			tag.getAttribute("x").setValue(rect.x+"");
+			tag.getAttribute("y").setValue(rect.y+"");
 			tag.getAttribute("width").setValue(rect.width+"");
 			tag.getAttribute("height").setValue(rect.height+"");
 			tag.fireTagChanged();
@@ -162,6 +188,8 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 		@Override
 		public void undo()
 		{
+			tag.getAttribute("x").setValue(oldX+"");
+			tag.getAttribute("y").setValue(oldY+"");
 			tag.getAttribute("width").setValue(oldW+"");
 			tag.getAttribute("height").setValue(oldH+"");
 			tag.fireTagChanged();

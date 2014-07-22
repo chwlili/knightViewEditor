@@ -28,6 +28,12 @@ public class LabelPart extends ControlPart
 
 		super.removeNotify();
 	}
+	
+	@Override
+	protected void createEditPolicies()
+	{
+		//super.createEditPolicies();
+	}
 
 	private void releaseFont()
 	{

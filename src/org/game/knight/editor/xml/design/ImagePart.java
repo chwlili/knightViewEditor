@@ -51,6 +51,12 @@ public class ImagePart extends ControlPart
 
 		return view;
 	}
+	
+	@Override
+	protected void createEditPolicies()
+	{
+		//super.createEditPolicies();
+	}
 
 	@Override
 	protected void refreshVisuals()

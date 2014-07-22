@@ -2,6 +2,8 @@ package org.game.knight.editor.xml;
 
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.editparts.FreeformGraphicalRootEditPart;
+import org.eclipse.gef.tools.MarqueeSelectionTool;
+import org.eclipse.gef.ui.parts.GraphicalViewerKeyHandler;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.IDocument;
@@ -116,6 +118,7 @@ public class ViewEditor extends TextEditor
 		viewer.setEditDomain(new DefaultEditDomain(this));
 		viewer.setRootEditPart(new FreeformGraphicalRootEditPart());
 		viewer.setEditPartFactory(new GefFactory());
+		viewer.setKeyHandler(new GraphicalViewerKeyHandler(viewer));
 
 		Composite previewBox = new Composite(folder, SWT.None);
 		previewBox.setLayout(new FillLayout());
