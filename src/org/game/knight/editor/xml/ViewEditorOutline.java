@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -41,7 +40,6 @@ import org.game.knight.ast.ResourceSetTag;
 public class ViewEditorOutline implements IContentOutlinePage
 {
 	private ViewEditor editor;
-	private IDocument document;
 	
 	private DefineTag editingTag;
 
@@ -129,22 +127,7 @@ public class ViewEditorOutline implements IContentOutlinePage
 			{
 				IStructuredSelection select = (IStructuredSelection) obj;
 				Object item = select.getFirstElement();
-				if (item instanceof DefineTag)
-				{
-					DefineTag tag=(DefineTag)item;
-					
-					if(editingTag!=tag)
-					{
-						if(tag instanceof DefineControlTag && ((DefineControlTag)tag).isRoot())
-						{
-							editingTag=tag;
-							tree.refresh();
-							
-							editor.editTag(tag);
-						}
-					}
-				}
-				else if(item instanceof AbsTag)
+				if(item instanceof AbsTag)
 				{
 					AbsTag tag=(AbsTag)item;
 					if(tag.getChildren()!=null && tag.getChildren().size()>0)
@@ -173,10 +156,9 @@ public class ViewEditorOutline implements IContentOutlinePage
 		}
 	};
 
-	public ViewEditorOutline(ViewEditor editor, IDocument document)
+	public ViewEditorOutline(ViewEditor editor)
 	{
 		this.editor = editor;
-		this.document = document;
 	}
 
 	@Override
@@ -188,7 +170,7 @@ public class ViewEditorOutline implements IContentOutlinePage
 		tree.addSelectionChangedListener(treeSelectionListener);
 		tree.addDoubleClickListener(treeDoubleClickListener);
 		tree.setAutoExpandLevel(2);
-		tree.setInput(ASTManager.getDocumentAST(document));
+		tree.setInput(ASTManager.getDocumentAST(editor.getDocument()));
 	}
 
 	@Override
@@ -253,7 +235,7 @@ public class ViewEditorOutline implements IContentOutlinePage
 
 		ArrayList<Object> treeSelection = new ArrayList<Object>();
 
-		ArrayList<Object> nodes = ASTManager.getDocumentAST(document).getTrees();
+		ArrayList<Object> nodes = ASTManager.getDocumentAST(editor.getDocument()).getTrees();
 		for (int i = 0; i < nodes.size(); i++)
 		{
 			Object node = nodes.get(i);

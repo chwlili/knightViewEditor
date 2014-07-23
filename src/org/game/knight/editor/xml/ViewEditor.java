@@ -1,15 +1,13 @@
 package org.game.knight.editor.xml;
 
-import org.eclipse.gef.DefaultEditDomain;
-import org.eclipse.gef.editparts.FreeformGraphicalRootEditPart;
-import org.eclipse.gef.tools.MarqueeSelectionTool;
-import org.eclipse.gef.ui.parts.GraphicalViewerKeyHandler;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -21,7 +19,6 @@ import org.game.knight.PluginResource;
 import org.game.knight.ast.AST;
 import org.game.knight.ast.ASTManager;
 import org.game.knight.ast.AbsTag;
-import org.game.knight.ast.DefineTag;
 import org.game.knight.ast.FileRef;
 import org.game.knight.ast.IdDef;
 import org.game.knight.ast.IdRef;
@@ -30,9 +27,6 @@ import org.game.knight.editor.xml.action.LookFileAction;
 import org.game.knight.editor.xml.action.LookIdAction;
 import org.game.knight.editor.xml.action.RenameFileAction;
 import org.game.knight.editor.xml.action.RenameIdAction;
-import org.game.knight.editor.xml.design.GefFactory;
-import org.game.knight.editor.xml.design.GefViewer;
-import org.game.knight.editor.xml.design.TagInput;
 import org.game.knight.refactor.MoveFileAction;
 import org.game.knight.search.SearchFileRefAction;
 import org.game.knight.search.SearchIdRefAction;
@@ -42,9 +36,7 @@ public class ViewEditor extends TextEditor
 	public static final String ID = "org.game.editors.XML";
 
 	private CTabFolder folder;
-	
-	private GefViewer viewer;
-	private DefineTag currentTag;
+	private ViewGefEditor viewer;
 
 	public ViewEditor()
 	{
@@ -55,6 +47,11 @@ public class ViewEditor extends TextEditor
 		setDocumentProvider(ViewEditorHelper.createDocumentProvider());
 	}
 
+	/**
+	 * 选定文本范围
+	 * @param offset
+	 * @param length
+	 */
 	public void selectRange(int offset, int length)
 	{
 		Point range = getSourceViewer().getSelectedRange();
@@ -72,6 +69,10 @@ public class ViewEditor extends TextEditor
 		setFocus();
 	}
 
+	/**
+	 * 选定指定的标记
+	 * @param tag
+	 */
 	public void selectTag(AbsTag tag)
 	{
 		if (folder.getSelectionIndex() == 0)
@@ -80,20 +81,10 @@ public class ViewEditor extends TextEditor
 		}
 	}
 
-	public void editTag(DefineTag tag)
-	{
-		if (folder.getSelectionIndex() == 0)
-		{
-			getSourceViewer().setSelectedRange(getSourceViewer().getSelectedRange().x, 0);
-		}
-		currentTag = tag;
-		folder.setSelection(1);
-		
-		viewer.offShowScroller();
-		viewer.setContents(new TagInput(tag));
-		setFocus();
-	}
-
+	/**
+	 * 获取文档
+	 * @return
+	 */
 	public IDocument getDocument()
 	{
 		return getSourceViewer().getDocument();
@@ -106,6 +97,19 @@ public class ViewEditor extends TextEditor
 		folder.setTabHeight(25);
 		folder.setSelectionBackground(new Color(null, 153, 180, 209));
 		folder.setSimple(true);
+		folder.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				if(folder.getSelectionIndex()==1)
+				{
+					viewer.offShowScroller();
+					viewer.open();
+					setFocus();
+				}
+			}
+		});
 
 		Composite sourceBox = new Composite(folder, SWT.None);
 		sourceBox.setBackground(PluginResource.getColor(153, 180, 209));
@@ -113,12 +117,7 @@ public class ViewEditor extends TextEditor
 		
 		Composite designBox = new Composite(folder, SWT.None);
 		designBox.setLayout(new FillLayout());
-		viewer = new GefViewer();
-		viewer.createControl(designBox);
-		viewer.setEditDomain(new DefaultEditDomain(this));
-		viewer.setRootEditPart(new FreeformGraphicalRootEditPart());
-		viewer.setEditPartFactory(new GefFactory());
-		viewer.setKeyHandler(new GraphicalViewerKeyHandler(viewer));
+		viewer = new ViewGefEditor(designBox, this);
 
 		Composite previewBox = new Composite(folder, SWT.None);
 		previewBox.setLayout(new FillLayout());
@@ -158,7 +157,7 @@ public class ViewEditor extends TextEditor
 	@Override
 	public void setFocus()
 	{
-		if(folder.getSelectionIndex()==1)
+		if(folder.getSelectionIndex()!=0)
 		{
 			folder.setFocus();
 		}
@@ -288,7 +287,7 @@ public class ViewEditor extends TextEditor
 		{
 			if (outline == null)
 			{
-				outline = new ViewEditorOutline(this, getSourceViewer().getDocument());
+				outline = new ViewEditorOutline(this);
 			}
 			return outline;
 		}
