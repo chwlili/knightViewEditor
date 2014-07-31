@@ -57,6 +57,12 @@ public class ViewEditorHelper extends PresentationReconciler
 	 */
 	private static class MyDocumentProvider extends FileDocumentProvider
 	{
+		@Override
+		protected IDocument createEmptyDocument()
+		{
+			return new FileDocument();
+		}
+		
 		protected IDocument createDocument(Object element) throws CoreException
 		{
 			IDocument document = super.createDocument(element);
@@ -72,6 +78,15 @@ public class ViewEditorHelper extends PresentationReconciler
 				document.setDocumentPartitioner(partitioner);
 			}
 			return document;
+		}
+		
+		@Override
+		protected void setupDocument(Object element, IDocument document)
+		{
+			super.setupDocument(element, document);
+			
+			FileDocument dom=(FileDocument)document;
+			dom.setFile(((IFileEditorInput) element).getFile());
 		}
 	}
 
