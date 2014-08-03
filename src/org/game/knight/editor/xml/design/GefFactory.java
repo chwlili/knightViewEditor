@@ -2,13 +2,19 @@ package org.game.knight.editor.xml.design;
 
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
-import org.game.knight.ast.DefineControlTag;
-import org.game.knight.ast.DefineGridImgTag;
-import org.game.knight.ast.DefineImgTag;
-import org.game.knight.ast.DefineTextTag;
+import org.game.knight.ast2.UIBase;
+import org.game.knight.editor.xml.ViewEditor;
+import org.game.knight.editor.xml.ViewGefEditor;
 
 public class GefFactory implements EditPartFactory
 {
+	private ViewEditor editor;
+	
+	public GefFactory(ViewEditor editor)
+	{
+		this.editor=editor;
+	}
+	
 	@Override
 	public EditPart createEditPart(EditPart context, Object model)
 	{
@@ -16,33 +22,12 @@ public class GefFactory implements EditPartFactory
 
 		if (model instanceof TagInput)
 		{
-			TagInput box = (TagInput) model;
-			if (box.tag instanceof DefineControlTag)
-			{
-				part = new DefineControlPart();
-			}
-			else
-			{
-				model = box.tag;
-			}
+			part = new DefineControlPart();
 		}
-
-		if (model instanceof DefineImgTag)
+		else if (model instanceof UIBase)
 		{
-			part = new DefineImgPart();
-		}
-		else if (model instanceof DefineTextTag)
-		{
-			part = new DefineTextPart();
-		}
-		else if (model instanceof DefineGridImgTag)
-		{
-			part = new DefineGridImgPart();
-		}
-		else if (model instanceof DefineControlTag)
-		{
-			DefineControlTag tag = (DefineControlTag) model;
-			String tagName = tag.getName();
+			UIBase tag = (UIBase) model;
+			String tagName = tag.getTagName();
 			if (tagName.equals("image"))
 			{
 				part = new ImagePart();
@@ -88,6 +73,10 @@ public class GefFactory implements EditPartFactory
 		if (part != null)
 		{
 			part.setModel(model);
+			if(part instanceof AbsPart)
+			{
+				((AbsPart)part).setEditor(editor);
+			}
 		}
 
 		return part;

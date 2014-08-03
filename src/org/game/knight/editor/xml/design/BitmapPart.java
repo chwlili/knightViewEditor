@@ -2,6 +2,7 @@ package org.game.knight.editor.xml.design;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.draw2d.IFigure;
+import org.game.knight.ast2.UIBitmap;
 import org.game.knight.editor.xml.design.figure.ImageFigure;
 import org.game.knight.editor.xml.design.figure.SliceImage;
 import org.game.knight.editor.xml.design.figure.SliceImageDescriptor;
@@ -46,7 +47,7 @@ public class BitmapPart extends ControlPart
 	{
 		super.refreshVisuals();
 
-		IFile file=getTagHelper().findFileByAttribute("bitmap");
+		IFile file=((UIBitmap)getModel()).getBitmapFile();
 		if(file!=null)
 		{
 			if(!file.equals(this.file))

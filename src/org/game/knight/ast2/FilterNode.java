@@ -9,5 +9,10 @@ public class FilterNode extends BaseTagNode
 	{
 		super(antlrNode);
 	}
+	
+	public String getID()
+	{
+		return getAttribute("id");
+	}
 
 }

@@ -19,50 +19,58 @@ public class ViewRoot extends BaseTagNode
 		super(node);
 		
 		setDocument(document);
+		initChildren();
+		initAttributes();
 	}
 
 	@Override
 	protected BaseTagNode initChild(ParserRuleContext antlrNode)
 	{
-		if (isTagContext(antlrNode))
+		String tagName = getTagName(antlrNode);
+		if ("depends".equals(tagName))
 		{
-			String tagName = getTagName(antlrNode);
-			if ("depends".equals(tagName))
-			{
-				return new DependListNode(antlrNode);
-			}
-			else if ("bitmaps".equals(tagName))
-			{
-				return new BitmapListNode(antlrNode);
-			}
-			else if ("bitmapReaders".equals(tagName))
-			{
-				return new GridBitmapListNode(antlrNode);
-			}
-			else if ("swfs".equals(tagName))
-			{
-				return new SwfListNode(antlrNode);
-			}
-			else if ("filters".equals(tagName))
-			{
-				return new FilterListNode(antlrNode);
-			}
-			else if ("formats".equals(tagName))
-			{
-				return new FormatListNode(antlrNode);
-			}
-			else if ("colors".equals(tagName))
-			{
-				return new ColorListNode(antlrNode);
-			}
-			else if ("texts".equals(tagName))
-			{
-				return new TextListNode(antlrNode);
-			}
-			else if ("controls".equals(tagName))
-			{
-				return new UIViewListNode(antlrNode);
-			}
+			dependList=new DependListNode(antlrNode);
+			return dependList;
+		}
+		else if ("bitmaps".equals(tagName))
+		{
+			bitmapList=new BitmapListNode(antlrNode);
+			return bitmapList;
+		}
+		else if ("bitmapReaders".equals(tagName))
+		{
+			gridBitmapList=new GridBitmapListNode(antlrNode);
+			return gridBitmapList;
+		}
+		else if ("swfs".equals(tagName))
+		{
+			swfList= new SwfListNode(antlrNode);
+			return swfList;
+		}
+		else if ("filters".equals(tagName))
+		{
+			filterList= new FilterListNode(antlrNode);
+			return filterList;
+		}
+		else if ("formats".equals(tagName))
+		{
+			formatList= new FormatListNode(antlrNode);
+			return formatList;
+		}
+		else if ("colors".equals(tagName))
+		{
+			colorList= new ColorListNode(antlrNode);
+			return colorList;
+		}
+		else if ("texts".equals(tagName))
+		{
+			textList=new TextListNode(antlrNode);
+			return textList;
+		}
+		else if ("controls".equals(tagName))
+		{
+			viewList=new UIViewListNode(antlrNode);
+			return viewList;
 		}
 
 		return super.initChild(antlrNode);
@@ -103,13 +111,18 @@ public class ViewRoot extends BaseTagNode
 		return colorList;
 	}
 	
+	public TextListNode getTextList()
+	{
+		return textList;
+	}
+	
 	public UIViewListNode getViewList()
 	{
 		return viewList;
 	}
-	
-	public TextListNode getTextList()
+
+	public String getText()
 	{
-		return textList;
+		return antlrNode.getText();
 	}
 }

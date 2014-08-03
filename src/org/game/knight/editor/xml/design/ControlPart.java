@@ -12,66 +12,20 @@ import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.commands.Command;
-import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.ChangeBoundsRequest;
 import org.eclipse.gef.requests.CreateRequest;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
-import org.game.knight.ast.DefineControlTag;
-import org.game.knight.ast.ITagListener;
+import org.game.knight.ast2.UIBase;
 
-public class ControlPart extends AbstractGraphicalEditPart implements ITagListener
+public class ControlPart extends AbsPart
 {
-	private TagHelper helper;
-
 	private int parentW = 0;
 	private int parentH = 0;
 	private int selfW = 0;
 	private int selfH = 0;
-
-	@Override
-	public void activate()
-	{
-		super.activate();
-		getTag().addListener(this);
-	}
-	
-	@Override
-	public void deactivate()
-	{
-		super.deactivate();
-		getTag().removeListener(this);
-	}
-
-	public void onTagChanged()
-	{
-		refreshVisuals();
-	}
-	
-	/**
-	 * 获取模型
-	 * 
-	 * @return
-	 */
-	protected DefineControlTag getTag()
-	{
-		return (DefineControlTag) getModel();
-	}
-
-	/**
-	 * 获取模型辅助器
-	 * 
-	 * @return
-	 */
-	protected TagHelper getTagHelper()
-	{
-		if (helper == null)
-		{
-			helper = new TagHelper((DefineControlTag) getModel());
-		}
-		return helper;
-	}
 
 	/**
 	 * 获取模型子级
@@ -81,15 +35,10 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 	protected List getModelChildren()
 	{
 		ArrayList<Object> list = new ArrayList<Object>();
-		if (getTag().getChildren() != null)
+		UIBase base=(UIBase)getModel();
+		for(int i=0;i<base.getChildCount();i++)
 		{
-			for (Object tag : getTag().getChildren())
-			{
-				if (tag instanceof DefineControlTag)
-				{
-					list.add(tag);
-				}
-			}
+			list.add(base.getChildAt(i));
 		}
 		return list;
 	}
@@ -111,7 +60,7 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 			@Override
 			protected Command createChangeConstraintCommand(ChangeBoundsRequest request, EditPart child, Object constraint)
 			{
-				return new SetCommand((DefineControlTag) ((ControlPart) child).getModel(),(Rectangle)constraint);
+				return new SetCommand(getEditor().getDocument(),(UIBase)((ControlPart) child).getModel(),(Rectangle)constraint);
 			}
 			
 			@Override
@@ -135,14 +84,14 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 
 	private static class SetCommand extends Command
 	{
-		private DefineControlTag tag;
+		private UIBase tag;
 		private int oldX;
 		private int oldY;
 		private int oldW;
 		private int oldH;
 		private Rectangle rect;
 		
-		public SetCommand(DefineControlTag tag,Rectangle rect)
+		public SetCommand(IDocument dom,UIBase tag,Rectangle rect)
 		{
 			this.tag=tag;
 			this.rect=rect;
@@ -153,20 +102,26 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 			oldH=0;
 			if(tag.hasAttribute("x"))
 			{
-				oldX=Integer.parseInt(tag.getAttributeValue("x"));
+				oldX=tag.getX();
 			}
 			if(tag.hasAttribute("y"))
 			{
-				oldY=Integer.parseInt(tag.getAttributeValue("y"));
+				oldY=tag.getY();
 			}
 			if(tag.hasAttribute("width"))
 			{
-				oldW=Integer.parseInt(tag.getAttributeValue("width"));
+				oldW=tag.getWidth();
 			}
 			if(tag.hasAttribute("height"))
 			{
-				oldH=Integer.parseInt(tag.getAttributeValue("height"));
+				oldH=tag.getHeight();
 			}
+			//dom.replace(offset, length, text);
+		}
+		@Override
+		public String getLabel()
+		{
+			return "toto";
 		}
 
 		@Override
@@ -178,20 +133,20 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 		@Override
 		public void redo()
 		{
-			tag.getAttribute("x").setValue(rect.x+"");
-			tag.getAttribute("y").setValue(rect.y+"");
-			tag.getAttribute("width").setValue(rect.width+"");
-			tag.getAttribute("height").setValue(rect.height+"");
+			tag.setX(rect.x);
+			tag.setY(rect.y);
+			tag.setWidth(rect.width);
+			tag.setHeight(rect.height);
 			tag.fireTagChanged();
 		}
 
 		@Override
 		public void undo()
 		{
-			tag.getAttribute("x").setValue(oldX+"");
-			tag.getAttribute("y").setValue(oldY+"");
-			tag.getAttribute("width").setValue(oldW+"");
-			tag.getAttribute("height").setValue(oldH+"");
+			tag.setX(oldX);
+			tag.setY(oldY);
+			tag.setWidth(oldW);
+			tag.setHeight(oldH);
 			tag.fireTagChanged();
 		}
 	}
@@ -230,12 +185,12 @@ public class ControlPart extends AbstractGraphicalEditPart implements ITagListen
 	@Override
 	protected void refreshVisuals()
 	{
-		TagHelper tag = getTagHelper();
+		UIBase tag=(UIBase)getModel();
 
 		double x = tag.getX();
 		double y = tag.getY();
-		double w = tag.getW();
-		double h = tag.getH();
+		double w = tag.getWidth();
+		double h = tag.getHeight();
 
 		if (tag.hasLeft() && tag.hasRight())
 		{

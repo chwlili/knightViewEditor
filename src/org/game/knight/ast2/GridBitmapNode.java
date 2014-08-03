@@ -10,4 +10,8 @@ public class GridBitmapNode extends BaseTagNode
 		super(antlrNode);
 	}
 
+	public String getID()
+	{
+		return getAttribute("id");
+	}
 }

@@ -9,5 +9,10 @@ public class SwfNode extends BaseTagNode
 	{
 		super(antlrNode);
 	}
+	
+	public String getID()
+	{
+		return getAttribute("id");
+	}
 
 }

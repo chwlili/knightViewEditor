@@ -17,7 +17,31 @@ public class GridBitmapListNode extends BaseTagNode
 		{
 			return new GridBitmapNode(antlrNode);
 		}
-		return super.initChild(antlrNode);
+		return null;
 	}
 
+	public int size()
+	{
+		return getChildren().size();
+	}
+	
+	public GridBitmapNode get(int index)
+	{
+		return (GridBitmapNode)getChildren().get(index);
+	}
+	
+	public GridBitmapNode find(String id)
+	{
+		if(id!=null)
+		{
+			for(int i=size()-1;i>=0;i--)
+			{
+				if(id.equals(get(i).getID()))
+				{
+					return get(i);
+				}
+			}
+		}
+		return null;
+	}
 }

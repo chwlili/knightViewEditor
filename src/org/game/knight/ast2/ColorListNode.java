@@ -17,6 +17,31 @@ public class ColorListNode extends BaseTagNode
 		{
 			return new ColorNode(antlrNode);
 		}
-		return super.initChild(antlrNode);
+		return null;
+	}
+	
+	public int size()
+	{
+		return getChildren().size();
+	}
+	
+	public ColorNode get(int index)
+	{
+		return (ColorNode)getChildren().get(index);
+	}
+	
+	public ColorNode find(String id)
+	{
+		if(id!=null)
+		{
+			for(int i=size()-1;i>=0;i--)
+			{
+				if(id.equals(get(i).getID()))
+				{
+					return get(i);
+				}
+			}
+		}
+		return null;
 	}
 }

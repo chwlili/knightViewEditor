@@ -8,6 +8,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.game.knight.ast.DefineFormatTag;
+import org.game.knight.ast2.FormatNode;
+import org.game.knight.ast2.UILabel;
 import org.game.knight.editor.xml.design.figure.LabelFigure;
 
 public class LabelPart extends ControlPart
@@ -33,7 +35,7 @@ public class LabelPart extends ControlPart
 	protected void createEditPolicies()
 	{
 		//super.createEditPolicies();
-	}
+	}	
 
 	private void releaseFont()
 	{
@@ -71,7 +73,9 @@ public class LabelPart extends ControlPart
 	{
 		super.refreshVisuals();
 
-		DefineFormatTag tag = getTagHelper().findFontByAttribute("format");
+		UILabel data=(UILabel)getModel();
+		
+		FormatNode tag=data.getFormat();
 
 		FontData font = new FontData();
 		RGB rgb = new RGB(0, 0, 0);
@@ -102,7 +106,7 @@ public class LabelPart extends ControlPart
 
 		this.view.setForegroundColor(getViewer().getResourceManager().createColor(colorDescriptor));
 		this.view.setFont(getViewer().getResourceManager().createFont(fontDescriptor));
-		this.view.setText(getTagHelper().findTextByAttribute("text"), "true".equals(getTagHelper().getStringValue("html")));
+		this.view.setText(data.getText(), data.isHTML());
 		
 		this.rgb = rgb;
 		this.font = font;

@@ -1,5 +1,8 @@
 package org.game.knight.editor.xml;
 
+import java.io.IOException;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.IDocument;
@@ -22,6 +25,8 @@ import org.game.knight.ast.AbsTag;
 import org.game.knight.ast.FileRef;
 import org.game.knight.ast.IdDef;
 import org.game.knight.ast.IdRef;
+import org.game.knight.ast2.ViewDocument;
+import org.game.knight.ast2.ViewDocumentFactory;
 import org.game.knight.editor.swf.Swf;
 import org.game.knight.editor.xml.action.LookFileAction;
 import org.game.knight.editor.xml.action.LookIdAction;
@@ -107,6 +112,22 @@ public class ViewEditor extends TextEditor
 					viewer.offShowScroller();
 					viewer.open();
 					setFocus();
+				}
+				else if(folder.getSelectionIndex()==0)
+				{
+					try
+					{
+						ViewDocument document = ViewDocumentFactory.getViewAST(((FileDocument)getDocument()).getFile());
+						getDocument().set(document.getRoot().getText());
+					}
+					catch (CoreException e1)
+					{
+						e1.printStackTrace();
+					}
+					catch (IOException e1)
+					{
+						e1.printStackTrace();
+					}
 				}
 			}
 		});

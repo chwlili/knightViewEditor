@@ -17,7 +17,31 @@ public class FormatListNode extends BaseTagNode
 		{
 			return new FormatNode(antlrNode);
 		}
-		return super.initChild(antlrNode);
+		return null;
 	}
 
+	public int size()
+	{
+		return getChildren().size();
+	}
+	
+	public FormatNode get(int index)
+	{
+		return (FormatNode) getChildren().get(index);
+	}
+	
+	public FormatNode find(String id)
+	{
+		if(id!=null)
+		{
+			for(int i=size()-1;i>=0;i--)
+			{
+				if(id.equals(get(i).getID()))
+				{
+					return get(i);
+				}
+			}
+		}
+		return null;
+	}
 }

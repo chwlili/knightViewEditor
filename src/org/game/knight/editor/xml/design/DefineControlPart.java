@@ -40,7 +40,7 @@ public class DefineControlPart extends AbstractGraphicalEditPart
 	{
 		TagInput box=(TagInput) getModel();
 		ArrayList<Object> list=new ArrayList<Object>();
-		list.add(box.tag);
+		list.add(box.node);
 		return list;
 	}
 	

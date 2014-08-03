@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
@@ -15,14 +16,17 @@ import org.chw.xml.XmlParser;
 import org.chw.xml.XmlParser.AttributeContext;
 import org.chw.xml.XmlParser.ComplexNodeContext;
 import org.chw.xml.XmlParser.SingleNodeContext;
+import org.game.knight.ast.ITagListener;
 
 public class BaseTagNode
 {
 	protected ViewDocument dom;
 	protected ParseTree antlrNode;
-	protected ArrayList<BaseTagNode> children;
+	private ArrayList<BaseTagNode> children;
 	protected ArrayList<AttributeContext> attributeList;
 	protected Hashtable<String, AttributeContext> attributeHash;
+	
+	private ArrayList<ITagListener> listeners;
 
 	/**
 	 * 构造函数
@@ -32,10 +36,43 @@ public class BaseTagNode
 	public BaseTagNode(ParserRuleContext antlrNode)
 	{
 		this.antlrNode = antlrNode;
-		
-		if(!isTagContext(antlrNode))
+	}
+	
+	protected ArrayList<BaseTagNode> getChildren()
+	{
+		if(children==null)
 		{
-			throw new Error("");
+			initChildren();
+		}
+		return children;
+	}
+	
+	public void addListener(ITagListener listener)
+	{
+		if(listeners==null)
+		{
+			listeners=new ArrayList<ITagListener>();
+		}
+		listeners.remove(listener);
+		listeners.add(listener);
+	}
+	
+	public void removeListener(ITagListener listener)
+	{
+		if(listeners!=null)
+		{
+			listeners.remove(listener);
+		}
+	}
+	
+	public void fireTagChanged()
+	{
+		if(listeners!=null)
+		{
+			for(ITagListener listener:listeners)
+			{
+				listener.onTagChanged();
+			}
 		}
 	}
 	
@@ -55,6 +92,42 @@ public class BaseTagNode
 	public void setDocument(ViewDocument dom)
 	{
 		this.dom=dom;
+	}
+	
+	/**
+	 * 获取标签名称
+	 * @return
+	 */
+	public String getTagName()
+	{
+		if(antlrNode instanceof SingleNodeContext)
+		{
+			return ((SingleNodeContext)antlrNode).tagName.getText();
+		}
+		else if(antlrNode instanceof ComplexNodeContext)
+		{
+			return ((ComplexNodeContext)antlrNode).tagName.getText();
+		}
+		return "";
+	}
+	
+	/**
+	 * 获取子级个数
+	 * @return
+	 */
+	public int getChildCount()
+	{
+		return getChildren().size();
+	}
+	
+	/**
+	 * 按索引获取子级
+	 * @param index
+	 * @return
+	 */
+	public BaseTagNode getChildAt(int index)
+	{
+		return getChildren().get(index);
 	}
 
 	/**
@@ -117,7 +190,7 @@ public class BaseTagNode
 			
 			for(int i=0;i<antlrNode.getChildCount();i++)
 			{
-				ParseTree antlrChildNode=antlrNode.getChild(0);
+				ParseTree antlrChildNode=antlrNode.getChild(i);
 				if(antlrChildNode instanceof AttributeContext)
 				{
 					AttributeContext attributeContext=(AttributeContext)antlrChildNode;
@@ -135,6 +208,7 @@ public class BaseTagNode
 	 */
 	public boolean hasAttribute(String name)
 	{
+		initAttributes();
 		return attributeHash.containsKey(name);
 	}
 	
@@ -145,6 +219,7 @@ public class BaseTagNode
 	 */
 	public String getAttribute(String name)
 	{
+		initAttributes();
 		if(hasAttribute(name))
 		{
 			return attributeHash.get(name).value.getText();
@@ -159,6 +234,7 @@ public class BaseTagNode
 	 */
 	public void setAttribute(String name,String value)
 	{
+		initAttributes();
 		if(value==null)
 		{
 			value="";
@@ -181,6 +257,8 @@ public class BaseTagNode
 			AttributeContext attributeContext=parser.attribute();
 			attributeList.add(attributeContext);
 			attributeHash.put(attributeContext.name.getText(), attributeContext);
+			
+			//ParserRuleContext nativeNode=(ParserRuleContext)antlrNode;
 		}
 	}
 	
@@ -254,18 +332,18 @@ public class BaseTagNode
 		if (children == null)
 		{
 			children = new ArrayList<BaseTagNode>();
-			attributeList=new ArrayList<AttributeContext>();
-			attributeHash=new Hashtable<String, AttributeContext>();
 			
 			for(int i=0;i<antlrNode.getChildCount();i++)
 			{
-				ParseTree antlrChildNode=antlrNode.getChild(0);
+				ParseTree antlrChildNode=antlrNode.getChild(i);
 				if(isTagContext(antlrChildNode))
 				{
 					BaseTagNode node=initChild((ParserRuleContext)antlrChildNode);
-					node.setDocument(getDocument());
-					
-					children.add(node);
+					if(node!=null)
+					{
+						node.setDocument(getDocument());
+						children.add(node);
+					}
 				}
 			}
 		}
@@ -278,6 +356,6 @@ public class BaseTagNode
 	 */
 	protected BaseTagNode initChild(ParserRuleContext antlrNode)
 	{
-		return new BaseTagNode(antlrNode);
+		return null;
 	}
 }

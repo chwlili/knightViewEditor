@@ -2,6 +2,7 @@ package org.game.knight.editor.xml.design;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.draw2d.IFigure;
+import org.game.knight.ast2.UIImage;
 import org.game.knight.editor.xml.design.figure.ImageFigure;
 import org.game.knight.editor.xml.design.figure.SliceImage;
 import org.game.knight.editor.xml.design.figure.SliceImageDescriptor;
@@ -62,38 +63,15 @@ public class ImagePart extends ControlPart
 	protected void refreshVisuals()
 	{
 		super.refreshVisuals();
-
-		IFile file=getTagHelper().findFileByAttribute("bmp");
-		boolean slice=false;
-		int left=0;
-		int top=0;
-		int right=0;
-		int bottom=0;
 		
-		String grid=getTagHelper().getStringValue("grid");
-		if(grid!=null && !grid.isEmpty())
-		{
-			String[] parts=grid.split(",");
-			if(parts.length>=4)
-			{
-				try
-				{
-					slice=true;
-					left=Integer.parseInt(parts[0]);
-					top=Integer.parseInt(parts[1]);
-					right=Integer.parseInt(parts[2]);
-					bottom=Integer.parseInt(parts[3]);
-				}
-				catch(Exception exception)
-				{
-					slice=false;
-					left=0;
-					top=0;
-					right=0;
-					bottom=0;
-				}
-			}
-		}
+		UIImage imageData=(UIImage)getModel();
+		
+		IFile file=imageData.getBitmapFile();
+		boolean slice=imageData.hasGrid();
+		int left=imageData.getGridLeft();
+		int top=imageData.getGridTop();
+		int right=imageData.getGridRight();
+		int bottom=imageData.getGridBottom();
 		
 		if(file!=null)
 		{

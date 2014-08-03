@@ -26,18 +26,33 @@ public class UIViewListNode extends BaseTagNode
 		return createUINode(antlrNode);
 	}
 	
-	//---------------------------------------------------------------------
 	
-	private static Hashtable<String, Class<? extends UIBase>> tagName_Class;
-	
-	private static void initMap()
+	public int size()
 	{
-		if(tagName_Class==null)
-		{
-			tagName_Class=new Hashtable<String, Class<? extends UIBase>>();
-			tagName_Class.put("box", UIBox.class);
-		}
+		return getChildren().size();
 	}
+	
+	public UIBase get(int index)
+	{
+		return (UIBase)getChildren().get(index);
+	}
+	
+	public UIBase find(String id)
+	{
+		if(id!=null)
+		{
+			for(int i=size()-1;i>=0;i--)
+			{
+				if(id.equals(get(i).getAttribute("id")))
+				{
+					return get(i);
+				}
+			}
+		}
+		return null;
+	}
+	
+	//---------------------------------------------------------------------
 	
 	/**
 	 * 创建UI节点
@@ -46,8 +61,6 @@ public class UIViewListNode extends BaseTagNode
 	 */
 	public static BaseTagNode createUINode(ParserRuleContext antlrNode)
 	{
-		initMap();
-		
 		String tagName="";
 		if(antlrNode instanceof SingleNodeContext)
 		{

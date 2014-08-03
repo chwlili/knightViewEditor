@@ -20,6 +20,16 @@ public class DependListNode extends BaseTagNode
 		{
 			return new DependNode(antlrNode);
 		}
-		return super.initChild(antlrNode);
+		return null;
+	}
+	
+	public int size()
+	{
+		return getChildren().size();
+	}
+	
+	public DependNode get(int index)
+	{
+		return (DependNode)getChildren().get(index);
 	}
 }

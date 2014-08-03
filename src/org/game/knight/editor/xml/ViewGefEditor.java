@@ -1,7 +1,8 @@
 package org.game.knight.editor.xml;
 
-import java.util.ArrayList;
+import java.io.IOException;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.editparts.FreeformGraphicalRootEditPart;
 import org.eclipse.gef.ui.parts.GraphicalViewerKeyHandler;
@@ -13,13 +14,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.game.knight.ast.AST;
-import org.game.knight.ast.ASTManager;
-import org.game.knight.ast.AbsTag;
-import org.game.knight.ast.DefineControlTag;
+import org.game.knight.ast2.UIBase;
+import org.game.knight.ast2.UIViewListNode;
+import org.game.knight.ast2.ViewDocument;
+import org.game.knight.ast2.ViewDocumentFactory;
 import org.game.knight.editor.xml.design.GefFactory;
 import org.game.knight.editor.xml.design.GefViewer;
 import org.game.knight.editor.xml.design.TagInput;
@@ -84,8 +84,8 @@ public class ViewGefEditor extends Composite
 			public void widgetSelected(SelectionEvent e)
 			{
 				int index=editings.getSelectionIndex();
-				controlID=controls.get(index).getAttributeValue("id");
-				viewer.setContents(new TagInput(controls.get(index)));
+				controlID=viewList.get(index).getAttribute("id");
+				viewer.setContents(new TagInput(viewList.get(index)));
 			}
 		});
 
@@ -97,7 +97,7 @@ public class ViewGefEditor extends Composite
 		viewer.createControl(viewBox);
 		viewer.setEditDomain(new DefaultEditDomain(editor));
 		viewer.setRootEditPart(new FreeformGraphicalRootEditPart());
-		viewer.setEditPartFactory(new GefFactory());
+		viewer.setEditPartFactory(new GefFactory(editor));
 		viewer.setKeyHandler(new GraphicalViewerKeyHandler(viewer));
 	}
 	
@@ -129,69 +129,51 @@ public class ViewGefEditor extends Composite
 
 
 	private String controlID;
-	private ArrayList<AbsTag> controls=new ArrayList<AbsTag>();
+	private UIViewListNode viewList;
 	
 	public void open()
 	{
-		controls.clear();
 		editings.removeAll();
 		
-		AST ast=ASTManager.getDocumentAST(editor.getDocument());
-		ArrayList<Object> list=ast.getTrees();
-		for(Object obj:list)
+		try
 		{
-			if(obj instanceof AbsTag)
+			ViewDocument document=ViewDocumentFactory.getViewAST(((FileDocument)editor.getDocument()).getFile());
+
+			int index=-1;
+			viewList=document.getRoot().getViewList();
+			for(int i=0;i<viewList.size();i++)
 			{
-				AbsTag tag=(AbsTag)obj;
-				for(Object listTag:tag.getChildren())
+				UIBase item=viewList.get(i);
+				String id=item.getAttribute("id");
+				if(id!=null)
 				{
-					if(listTag instanceof AbsTag)
+					editings.add(id+"("+item.getTagName()+")");
+					if(id.equals(controlID))
 					{
-						for(Object a:((AbsTag)listTag).getChildren())
-						{
-							if(a instanceof AbsTag)
-							{
-								AbsTag last=(AbsTag)a;
-								if(last instanceof DefineControlTag)
-								{
-									controls.add(last);
-								}
-							}
-						}
+						index=i;
 					}
 				}
 			}
-		}
-		
-		int index=-1;
-		for(int i=0;i<controls.size();i++)
-		{
-			AbsTag tag=controls.get(i);
 			
-			String id=tag.getAttributeValue("id");
-			if(id!=null)
+			if(index==-1 && viewList.size()>0)
 			{
-				String label=tag.getAttributeValue("id")+"("+tag.getName()+")";
-				
-				editings.add(label);
-				if(id.equals(controlID))
-				{
-					index=i;
-				}
+				index=0;
+			}
+			
+			editings.select(index);
+			if(index!=-1)
+			{
+				controlID=viewList.get(index).getAttribute("id");
+				viewer.setContents(new TagInput(viewList.get(index)));
 			}
 		}
-		editings.add("Ìí¼ÓÐÂµÄ..");
-		
-		if(index==-1 && controls.size()>0)
+		catch (CoreException e)
 		{
-			index=0;
+			e.printStackTrace();
 		}
-		
-		editings.select(index);
-		if(index!=-1)
+		catch (IOException e)
 		{
-			controlID=controls.get(index).getAttributeValue("id");
-			viewer.setContents(new TagInput(controls.get(index)));
+			e.printStackTrace();
 		}
 	}
 	

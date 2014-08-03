@@ -9,5 +9,13 @@ public class ColorNode extends BaseTagNode
 	{
 		super(antlrNode);
 	}
-
+	
+	/**
+	 * ID
+	 * @return
+	 */
+	public String getID()
+	{
+		return getAttribute("id");
+	}
 }

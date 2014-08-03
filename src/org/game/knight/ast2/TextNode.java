@@ -10,4 +10,13 @@ public class TextNode extends BaseTagNode
 		super(antlrNode);
 	}
 
+	public String getID()
+	{
+		return getAttribute("id");
+	}
+	
+	public String getText()
+	{
+		return antlrNode.getText();
+	}
 }

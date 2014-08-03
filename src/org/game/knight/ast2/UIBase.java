@@ -110,6 +110,15 @@ public class UIBase extends BaseTagNode
 	}
 	
 	/**
+	 * 是否有left
+	 * @return
+	 */
+	public boolean hasLeft()
+	{
+		return hasAttribute("left");
+	}
+	
+	/**
 	 * 获取left
 	 * @return
 	 */
@@ -125,6 +134,15 @@ public class UIBase extends BaseTagNode
 	public void setLeft(int value)
 	{
 		setAttributeByInt("left",value);
+	}
+	
+	/**
+	 * 是否有center
+	 * @return
+	 */
+	public boolean hasCenter()
+	{
+		return hasAttribute("center");
 	}
 	
 	/**
@@ -146,6 +164,15 @@ public class UIBase extends BaseTagNode
 	}
 	
 	/**
+	 * 是否有right
+	 * @return
+	 */
+	public boolean hasRight()
+	{
+		return hasAttribute("right");
+	}
+	
+	/**
 	 * 获取right
 	 * @return
 	 */
@@ -161,6 +188,15 @@ public class UIBase extends BaseTagNode
 	public void setRight(int value)
 	{
 		setAttributeByInt("right",value);
+	}
+	
+	/**
+	 * 是否有top
+	 * @return
+	 */
+	public boolean hasTop()
+	{
+		return hasAttribute("top");
 	}
 	
 	/**
@@ -182,6 +218,15 @@ public class UIBase extends BaseTagNode
 	}
 	
 	/**
+	 * 是否有middle
+	 * @return
+	 */
+	public boolean hasMiddle()
+	{
+		return hasAttribute("middle");
+	}
+	
+	/**
 	 * 获取middle
 	 * @return
 	 */
@@ -197,6 +242,15 @@ public class UIBase extends BaseTagNode
 	public void setMiddle(int value)
 	{
 		setAttributeByInt("middle",value);
+	}
+	
+	/**
+	 * 是否有bottom
+	 * @return
+	 */
+	public boolean hasBottom()
+	{
+		return hasAttribute("bottom");
 	}
 	
 	/**

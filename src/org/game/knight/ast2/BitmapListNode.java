@@ -20,6 +20,31 @@ public class BitmapListNode extends BaseTagNode
 		{
 			return new BitmapNode(antlrNode);
 		}
-		return super.initChild(antlrNode);
+		return null;
+	}
+	
+	public int size()
+	{
+		return getChildren().size();
+	}
+	
+	public BitmapNode get(int index)
+	{
+		return (BitmapNode)getChildren().get(index);
+	}
+	
+	public BitmapNode find(String id)
+	{
+		if(id!=null)
+		{
+			for(int i=size()-1;i>=0;i--)
+			{
+				if(id.equals(get(i).getID()))
+				{
+					return get(i);
+				}
+			}
+		}
+		return null;
 	}
 }

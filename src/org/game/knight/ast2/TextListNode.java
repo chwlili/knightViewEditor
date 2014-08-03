@@ -17,7 +17,31 @@ public class TextListNode extends BaseTagNode
 		{
 			return new TextNode(antlrNode);
 		}
-		return super.initChild(antlrNode);
+		return null;
+	}
+	
+	public int size()
+	{
+		return getChildren().size();
+	}
+	
+	public TextNode get(int index)
+	{
+		return (TextNode)getChildren().get(index);
 	}
 
+	public TextNode find(String id)
+	{
+		if(id!=null)
+		{
+			for(int i=size()-1;i>=0;i--)
+			{
+				if(id.equals(get(i).getID()))
+				{
+					return get(i);
+				}
+			}
+		}
+		return null;
+	}
 }

@@ -76,6 +76,12 @@
             id="org.game.editors.SWF"
             name="SWF编辑器">
       </editor>
+      <editor
+            default="false"
+            extensions="xml"
+            id="org.game.knight.viewEditor.editor1"
+            name="name">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.search.searchResultViewPages">

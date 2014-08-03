@@ -1,13 +1,13 @@
 package org.game.knight.editor.xml.design;
 
-import org.game.knight.ast.AbsTag;
+import org.game.knight.ast2.BaseTagNode;
 
 public class TagInput
 {
-	public AbsTag tag;
+	public BaseTagNode node;
 	
-	public TagInput(AbsTag tag)
+	public TagInput(BaseTagNode node)
 	{
-		this.tag=tag;
+		this.node=node;
 	}
 }
